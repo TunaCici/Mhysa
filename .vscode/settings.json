@@ -1,0 +1,5 @@
+{
+    "C_Cpp.default.cppStandard": "c++20",
+    "makefile.compileCommandsPath": ".vscode/compile_commands.json",
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/.vscode/compile_commands.json"
+}
