@@ -1,0 +1,9 @@
+# Build files
+bin/*
+build/*
+
+# .vscode compile_commands
+.vscode/compile_commands.json
+
+# MacOS related
+.DS_Store

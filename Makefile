@@ -5,7 +5,7 @@ TARGET := bin/run
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := 
+CFLAGS := -std=c++20
 LIB := -L lib
 INC := -I include
 .DEFAULT_GOAL := all
