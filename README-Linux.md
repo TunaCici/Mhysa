@@ -49,6 +49,11 @@ $ ip route|r delete default|<IP_ADDR> via <IP_ADDR> # Deletes a route
 $ ip route get <IP_ADDR> # Returns the route taken for <IP_ADDR>
 ```
 
+# Administration
+```console
+$ cat /etc/passwd # Returns all users and their default shell
+```
+
 ## Utility
 ```console
 $ find <DIR> -name <REGEX> # Searches the <DIR> for any mathching <REGEX>
