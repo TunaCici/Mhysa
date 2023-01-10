@@ -17,6 +17,7 @@ include_directories(
 add_executable(Mhysa 
     src/Main.cpp
     src/Algorithms/Sorting.cpp
+    src/Formatting/NumberFormatting.cpp
 )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
