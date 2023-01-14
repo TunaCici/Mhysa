@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+# Projcet Info
 project(Mhysa VERSION 0.1.0)
 
 # C++ Standard
@@ -14,11 +15,26 @@ include_directories(
 )
 
 # Targets
-add_executable(Mhysa 
+add_executable(Debug_AARCH64
     src/Main.cpp
     src/Algorithms/Sorting.cpp
     src/Formatting/NumberFormatting.cpp
 )
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+add_executable(Release_AARCH64
+    src/Main.cpp
+    src/Algorithms/Sorting.cpp
+    src/Formatting/NumberFormatting.cpp
+)
+
+# Compiler Flags
+target_compile_options(
+    Debug_AARCH64
+    PRIVATE
+    -O0 -DDEBUG -Wall -Wextra -Wpedantic -g
+)
+target_compile_options(
+    Release_AARCH64
+    PRIVATE
+    -O3 -DNDEBUG -fomit-frame-pointer -flto
+)
