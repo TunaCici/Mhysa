@@ -1,6 +1,5 @@
 #include <string>
 
-#include "Spdlog/spdlog.h"
 #include "Formatting/NumberFormatting.hpp"
 
 namespace formatting {

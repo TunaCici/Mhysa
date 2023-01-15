@@ -1,5 +1,4 @@
 #include "Algorithms/Sorting.hpp"
-#include "Spdlog/spdlog.h"
 
 namespace sorting {
 
