@@ -47,6 +47,8 @@ $ ip route|r delete default|<IP_ADDR> via <IP_ADDR> # Deletes a route
 # ip route delete 192.168.1.0/24 via 192.168.1.1
 
 $ ip route get <IP_ADDR> # Returns the route taken for <IP_ADDR>
+
+$ ss -antu # Returns LISTENING | ESTABLISHED | etc. ports
 ```
 
 # Administration
