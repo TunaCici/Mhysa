@@ -1,0 +1,75 @@
+//
+// Created by Tuna Cici on 20.01.2023.
+//
+
+#include <random>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <limits>
+
+#include "gtest/gtest.h"
+
+#include "Algorithms/Sorting.hpp"
+
+
+/* Random int generator mt19937 */
+std::mt19937 mt_machine(time(nullptr));
+std::uniform_int_distribution uni_dist(
+        std::numeric_limits<int>::min(),
+        std::numeric_limits<int>::max()
+);
+
+TEST(Insertion_Sort, Edge_Cases) {
+    /*Vectors with size 0 */
+    const std::vector<int> org_vec_no_size;
+    std::vector<int> srtd_vec_no_size;
+
+    /* Vectors with size 1 */
+    const std::vector<int> org_vec_one_size = {42};
+    std::vector<int> srtd_vec_one_size = {42};
+
+    /* Vectors should not change */
+    sorting::insertion_sort(srtd_vec_no_size);
+    EXPECT_EQ(org_vec_no_size == srtd_vec_no_size, true);
+
+    sorting::insertion_sort(srtd_vec_one_size);
+    EXPECT_EQ(org_vec_one_size, srtd_vec_one_size);
+}
+
+TEST(Insertion_Sort, Sorting_Size_1K) {
+    std::vector<int> vec_thousand = {};
+    for (long i = 0; i < 1000; i++) { vec_thousand.push_back(uni_dist(mt_machine));}
+
+    /* Ascending order */
+    sorting::insertion_sort(vec_thousand);
+    EXPECT_EQ(sorting::is_ordered(vec_thousand), true);
+
+    /* Descending order */
+    sorting::insertion_sort(vec_thousand, false);
+    EXPECT_EQ(sorting::is_ordered(vec_thousand, false), true);
+}
+TEST(Insertion_Sort, Sorting_Size_10K) {
+    std::vector<int> vec_ten_thousand = {};
+    for (long i = 0; i < 10000; i++) { vec_ten_thousand.push_back(uni_dist(mt_machine));}
+
+    /* Ascending order*/
+    sorting::insertion_sort(vec_ten_thousand);
+    EXPECT_EQ(sorting::is_ordered(vec_ten_thousand), true);
+
+    /* Descending order*/
+    sorting::insertion_sort(vec_ten_thousand, false);
+    EXPECT_EQ(sorting::is_ordered(vec_ten_thousand, false), true);
+}
+TEST(Insertion_Sort, Sorting_Size_100K) {
+    std::vector<int> vec_hundred_thousand = {};
+    for (long i = 0; i < 100000; i++) { vec_hundred_thousand.push_back(uni_dist(mt_machine));}
+
+    /* Ascending order*/
+    sorting::insertion_sort(vec_hundred_thousand);
+    EXPECT_EQ(sorting::is_ordered(vec_hundred_thousand), true);
+
+    /* Descending order*/
+    sorting::insertion_sort(vec_hundred_thousand, false);
+    EXPECT_EQ(sorting::is_ordered(vec_hundred_thousand, false), true);
+}

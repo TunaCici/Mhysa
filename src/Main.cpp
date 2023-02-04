@@ -1,11 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <random>
-#include <string>
 #include <cstdlib>
 
 #include "glog/logging.h"
-#include "Algorithms/Sorting.hpp"
+
 #include "Formatting/NumberFormatting.hpp"
 
 int main(int argc, char** argv) {
@@ -14,7 +12,7 @@ int main(int argc, char** argv) {
     // Initialize logging
     google::InitGoogleLogging(argv[0]);
     #ifdef DEBUG
-        fLB::FLAGS_logtostderr = 1;
+        fLB::FLAGS_logtostderr = true;
     #endif
 
     const std::string arr1 = "1011";
@@ -24,10 +22,10 @@ int main(int argc, char** argv) {
     
     formatting::binary_add(result, arr1, arr2);
 
-    DLOG(INFO) << "arr1:\t\t" << arr1;
-    DLOG(INFO) << "arr2:\t\t" << arr2;
-    DLOG(INFO) << "result:\t\t" << result;
+    DLOG(INFO) << "arr1:\t" << arr1;
+    DLOG(INFO) << "arr2:\t" << arr2;
+    DLOG(INFO) << "result:\t" << result;
 
     n_result = EXIT_SUCCESS;
     return n_result;
-}  
+}
