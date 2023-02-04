@@ -6,6 +6,34 @@ bool in_bound(const int& target, const int& left, const int& right) {
     return left < target && target < right;
 }
 
+bool is_ordered(std::vector<int>& arr, bool ascending) {
+    bool ret_value = false;
+
+    if (arr.size() <= 1) {
+        ret_value = true;
+    }
+    else {
+        unsigned int idx;
+        for (idx = 1; idx < arr.size(); idx++) {
+            /* Values should increase */
+            if (ascending && arr[idx] < arr[idx - 1]) {
+                break;
+            }
+            /* Values should decrease */
+            else if (!ascending && arr[idx - 1] < arr[idx]) {
+                break;
+            }
+        }
+
+        /* Traversed all the elements? */
+        if (idx == arr.size()) {
+            ret_value = true;
+        }
+    }
+
+    return ret_value;
+}
+
 void insertion_sort(std::vector<int>& unsorted_arr, bool ascending) {
     if (unsorted_arr.size() <= 1) {
         /* No need to sort */
