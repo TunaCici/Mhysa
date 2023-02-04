@@ -50,7 +50,8 @@ enable_testing()
 add_executable(AllTest_AARCH64
         src/Algorithms/Sorting.cpp
         src/Formatting/NumberFormatting.cpp
-        tests/AlgorithmsTest.cpp)
+        tests/Algorithms/InsertionSortTest.cpp
+        tests/Algorithms/BubbleSortTest.cpp)
 target_link_libraries(AllTest_AARCH64 PRIVATE GTest::gtest_main)
 
 include(GoogleTest)
