@@ -3,16 +3,21 @@ The name is a High Valerian word for 'mother' and comes from the popular TV show
 
 It includes commonly used algorithms, data structures, scripts, formattings, data conversions, validators and etc. It is written mainly in C++20 and the build system is CMake 3.25.x.
 
-I am using spdlog's logging library made by gabime.
-[Spdlog](https://github.com/gabime/spdlog)
+## External Libraries
+Logging: [Latest Google Log](https://github.com/google/glog) \
+Testing: [Latest Google Test](https://github.com/google/googletest)
 
 ## Requirements
-CMake 3.00 or newer
+CMake 3.25 or newer
 
 ## Installation
 1. Clone this repository
 ```console
 $ git clone --depth 1 https://github.com/TunaCici/Mhysa.git
+
+# Also clone the external libraries
+$ git submodule init
+$ git submodule update
 ```
 
 2. Make & cd into build directory inside Mhysa/
@@ -23,17 +28,16 @@ $ cd build
 
 3. Run CMake to generate the Project files
 ```console
-$ cmake ..                          # Standard Makefile
+$ cmake ..                          # For Makefile
 $ cmake -G Xcode ..                 # For XCode
 $ cmake -G "Visual Studio 17 2022"  # For Visual Studio 2022
 ```
 
 ## Usage
-Currently none.
+TODO: How to run all tests for both x64 and AARCH64?
 
 ## Directory structure
 ```
-|-- .vscode            <- VSCode extension settings (clangd)
 |-- bin                <- Compiled binaries
 |-- build              <- CMake build
 |-- data               <- Project data
@@ -41,8 +45,9 @@ Currently none.
 |-- include            <- Header files
 |   `-- Algorithms     <- Algorithm headers
 |   `-- Formatting     <- Formatting headers
-|   `-- Spdlog         <- Spdlog headers & source
-|-- lib                <- Dynamic objects
+|-- lib                <- External Libraries
+|   `-- glog           <- Google Logging (from git)
+|   `-- googletest     <- Google Testing (from git)
 |-- src                <- Source files
 |   `-- Algorithms     <- Algorithm sources
 |   `-- Formatting     <- Formatting sources

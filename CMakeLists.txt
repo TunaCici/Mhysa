@@ -15,27 +15,22 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/lib
 )
 
-set(SOURCE_LIST
-    "src/Main.cpp"
-
-    "include/Algorithms/Sorting.hpp"
-    "src/Algorithms/Sorting.cpp"
-
-    "include/Formatting/NumberFormatting.hpp"
-    "src/Formatting/NumberFormatting.cpp"
-)
-
 # Static libraries
-option(BUILD_TESTING OFF)
-enable_testing()
+set(WITH_GFLAGS false)
 add_subdirectory(lib/glog)
+add_subdirectory(lib/googletest)
 
 # Targets
-add_executable(Debug_AARCH64 ${SOURCE_LIST})
+add_executable(Debug_AARCH64
+        src/Main.cpp
+        src/Algorithms/Sorting.cpp
+        src/Formatting/NumberFormatting.cpp)
 target_link_libraries(Debug_AARCH64 PRIVATE glog::glog)
 
-
-add_executable(Release_AARCH64 ${SOURCE_LIST})
+add_executable(Release_AARCH64
+        src/Main.cpp
+        src/Algorithms/Sorting.cpp
+        src/Formatting/NumberFormatting.cpp)
 target_link_libraries(Release_AARCH64 PRIVATE glog::glog)
 
 # Compiler flags
@@ -49,3 +44,14 @@ target_compile_options(
     PRIVATE
     -O3 -DNDEBUG -fomit-frame-pointer -flto
 )
+
+# Test settings
+enable_testing()
+add_executable(AllTest_AARCH64
+        src/Algorithms/Sorting.cpp
+        src/Formatting/NumberFormatting.cpp
+        tests/AlgorithmsTest.cpp)
+target_link_libraries(AllTest_AARCH64 PRIVATE GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(AllTest_AARCH64)
