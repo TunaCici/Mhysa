@@ -82,4 +82,75 @@ void bubble_sort(std::vector<int>& unsorted_arr, bool ascending) {
     }
 }
 
+static void merge_helper(
+        std::vector<int>& left_arr,
+        std::vector<int>& right_arr,
+        std::vector<int>& unsorted_arr,
+        bool ascending) {
+    unsigned int arr_idx = 0;
+    unsigned int left_idx = 0;
+    unsigned int right_idx = 0;
+
+    unsigned int left_size = left_arr.size();
+    unsigned int right_size = right_arr.size();
+
+    /* Merge two arrays into one while also sorting them */
+    while(left_idx < left_size && right_idx < right_size) {
+        bool left_bigger = right_arr[right_idx] < left_arr[left_idx];
+        bool left_smaller = left_arr[left_idx] < right_arr[right_idx];
+
+        if (ascending && left_smaller) {
+            unsorted_arr[arr_idx] = left_arr[left_idx];
+            left_idx++;
+        }
+        else if (!ascending && left_bigger) {
+            unsorted_arr[arr_idx] = left_arr[left_idx];
+            left_idx++;
+        }
+        else {
+            unsorted_arr[arr_idx] = right_arr[right_idx];
+            right_idx++;
+        }
+        arr_idx++;
+    }
+
+    /* Lastly, add the leftover elements (if any) */
+    while(left_idx < left_size) {
+        unsorted_arr[arr_idx] = left_arr[left_idx];
+        left_idx++;
+        arr_idx++;
+    }
+    while(right_idx < right_size) {
+        unsorted_arr[arr_idx] = right_arr[right_idx];
+        right_idx++;
+        arr_idx++;
+    }
+}
+
+void merge_sort(std::vector<int>& unsorted_arr, bool ascending) {
+    if (unsorted_arr.size() <= 1) {
+        /* No need to sort */
+        return;
+    }
+
+    /* Divide the array into 2 sub arrays */
+    unsigned int middle_idx = unsorted_arr.size() / 2;
+    std::vector<int> left_arr = {unsorted_arr.begin(), unsorted_arr.begin() + middle_idx};
+    std::vector<int> right_arr = {unsorted_arr.begin() + middle_idx, unsorted_arr.end()};
+
+    merge_sort(left_arr, ascending);
+    merge_sort(right_arr, ascending);
+    merge_helper(left_arr, right_arr, unsorted_arr, ascending);
+}
+
+void quick_sort(std::vector<int>& unsorted_arr, bool ascending) {
+    if (unsorted_arr.size() <= 1) {
+        /* No need to sort */
+        return;
+    }
+
+
+}
+
+
 }

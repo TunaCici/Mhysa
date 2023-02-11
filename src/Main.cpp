@@ -4,7 +4,7 @@
 
 #include "glog/logging.h"
 
-#include "Formatting/NumberFormatting.hpp"
+#include "Algorithms/Sorting.hpp"
 
 int main(int argc, char** argv) {
     int n_result = EXIT_FAILURE;
@@ -15,16 +15,14 @@ int main(int argc, char** argv) {
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    const std::string arr1 = "1011";
-    const std::string arr2 = "1100";
+    std::vector<int> my_arr = {0, 45, 234, 23, 34, 5, -1, -4, 6, -55};
 
-    std::string result;
-    
-    formatting::binary_add(result, arr1, arr2);
+    sorting::merge_sort(my_arr, true);
+    for (int i : my_arr) {
+        DLOG(INFO) << i;
+    }
 
-    DLOG(INFO) << "arr1:\t" << arr1;
-    DLOG(INFO) << "arr2:\t" << arr2;
-    DLOG(INFO) << "result:\t" << result;
+    DLOG(INFO) << "is_ordered: " << sorting::is_ordered(my_arr);
 
     n_result = EXIT_SUCCESS;
     return n_result;
