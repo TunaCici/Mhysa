@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 
     std::vector<int> my_arr = {0, 45, 234, 23, 34, 5, -1, -4, 6, -55};
 
-    sorting::merge_sort(my_arr, true);
+    sorting::heap_sort(my_arr, true);
     for (int i : my_arr) {
         DLOG(INFO) << i;
     }

@@ -143,12 +143,70 @@ void merge_sort(std::vector<int>& unsorted_arr, bool ascending) {
     merge_helper(left_arr, right_arr, unsorted_arr, ascending);
 }
 
-void quick_sort(std::vector<int>& unsorted_arr, bool ascending) {
+static void max_heapify(std::vector<int>& heap_arr, unsigned int idx) {
+    unsigned int left_idx = 2*idx + 1; // Left subtree
+    unsigned int right_idx = 2*idx + 2; // Right subtree
+
+    unsigned int biggest_idx = idx;
+
+    /* Check for the max-heap property */
+    if (left_idx < heap_arr.size() && heap_arr[idx] < heap_arr[left_idx]) {
+        biggest_idx = left_idx;
+    }
+    if (right_idx < heap_arr.size() && heap_arr[biggest_idx] < heap_arr[right_idx]) {
+        biggest_idx = right_idx;
+    }
+
+    /* Float down the heap_arr[idx] */
+    if (biggest_idx != idx) {
+        std::swap(heap_arr[idx], heap_arr[biggest_idx]);
+        max_heapify(heap_arr, biggest_idx);
+    }
+}
+
+static void build_max_heap(std::vector<int>& target_arr) {
+    unsigned int first_leaf_idx = target_arr.size() / 2;
+
+    /* TODO: Try using for_each here */
+    for (int i = first_leaf_idx - 1; 0 <= i; i--) {
+        max_heapify(target_arr, i);
+    }
+
+}
+
+void heap_sort(std::vector<int>& unsorted_arr, bool ascending) {
     if (unsorted_arr.size() <= 1) {
         /* No need to sort */
         return;
     }
 
+    std::vector<int> sorted_array(unsorted_arr.size());
+
+    /* TODO: Implement build_min_heap to sort by descending order */
+    build_max_heap(unsorted_arr);
+
+    /* TODO: Try using for_each here */
+    for (int i = unsorted_arr.size(); 0 < i; i--) {
+        sorted_array[i - 1] = unsorted_arr[0];
+
+        /* TODO: Maybe implement a better heap data structure? */
+        /* Remove the biggest element */
+        std::swap(unsorted_arr[0], unsorted_arr[unsorted_arr.size() - 1]);
+        unsorted_arr.pop_back();
+
+        max_heapify(unsorted_arr, 0);
+    }
+
+    /* Replace the unsorted_arr with sorted_arr */
+    unsorted_arr.swap(sorted_array);
+}
+
+
+void quick_sort(std::vector<int>& unsorted_arr, bool ascending) {
+    if (unsorted_arr.size() <= 1) {
+        /* No need to sort */
+        return;
+    }
 
 }
 
