@@ -14,43 +14,78 @@ CMake 3.25 or newer
 1. Download & Install CMake >= 3.25
 ```console
 # Linux
-$ sudo apt install cmake (Debian)
-$ sudo pacman -Syu cmake (Arch)
+$ sudo apt install cmake # (Debian)
+$ sudo pacman -Syu cmake # (Arch)
 
 # macOS
-$ brew install cmake (Using brew)
-Go to the link: https://cmake.org/download/ (DMG File)
+$ brew install cmake # (Using brew)
+Or go to the link: https://cmake.org/download/ # (Using DMG File)
 
 # Windows 
-Go to the link: https://cmake.org/download/ (MSI Installer)
-
-#
+Or go to the link: https://cmake.org/download/ # (Using MSI Installer)
 ```
 
-2. Clone this repository
+2. Download & Install C/C++ Compiler (Clang or GCC)
+```console
+# Linux (gcc)
+$ sudo apt install build-essential
+
+# macOS (clang)
+$ xcode-select --install
+
+# Windows (msvc)
+Follow the link:: https://learn.microsoft.com/en-us/cpp/build/vscpp-step-0-installation/
+```
+
+3. Clone this repository
 ```console
 $ git clone --depth 1 https://github.com/TunaCici/Mhysa.git
 
 # Also clone the external libraries
+$ cd Mhysa
 $ git submodule init
 $ git submodule update
 ```
 
-3. Make & cd into build directory inside Mhysa/
+4. Make & cd into build directory inside Mhysa/
 ```console
-$ mkdir build
+$ mkdir -p build
 $ cd build
 ```
 
-4. Run CMake to generate the Project files
+5. Run CMake to generate the Project files
 ```console
 $ cmake ..                          # For Makefile
 $ cmake -G Xcode ..                 # For XCode
 $ cmake -G "Visual Studio 17 2022"  # For Visual Studio 2022
 ```
 
-## Usage
-TODO: How to run all tests for both x64 and AARCH64?
+## Testing
+1. Build the test target
+```console
+# Linux
+$ make AllTest_AARCH64
+
+# macOS
+$ make AllTest_AARCH64 (Terminal)
+TODO: Using the XCode IDE
+
+# Windows
+TODO: Using the Visual Studio 2022
+```
+
+2. Run the tests (it might take a few minutes)
+```console
+# Linux
+$ ./AllTest_AARCH64
+
+# macOS
+$ ./AllTest_AARCH64 (Terminal)
+# TODO: Using the XCode IDE
+
+# Windows
+TODO: Using the Visual Studio 2022
+```
 
 ## Directory structure
 ```
