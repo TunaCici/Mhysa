@@ -11,7 +11,23 @@ Testing: [Latest Google Test](https://github.com/google/googletest)
 CMake 3.25 or newer
 
 ## Installation
-1. Clone this repository
+1. Download & Install CMake >= 3.25
+```console
+# Linux
+$ sudo apt install cmake (Debian)
+$ sudo pacman -Syu cmake (Arch)
+
+# macOS
+$ brew install cmake (Using brew)
+Go to the link: https://cmake.org/download/ (DMG File)
+
+# Windows 
+Go to the link: https://cmake.org/download/ (MSI Installer)
+
+#
+```
+
+2. Clone this repository
 ```console
 $ git clone --depth 1 https://github.com/TunaCici/Mhysa.git
 
@@ -20,13 +36,13 @@ $ git submodule init
 $ git submodule update
 ```
 
-2. Make & cd into build directory inside Mhysa/
+3. Make & cd into build directory inside Mhysa/
 ```console
 $ mkdir build
 $ cd build
 ```
 
-3. Run CMake to generate the Project files
+4. Run CMake to generate the Project files
 ```console
 $ cmake ..                          # For Makefile
 $ cmake -G Xcode ..                 # For XCode
