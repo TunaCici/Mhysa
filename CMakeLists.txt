@@ -52,7 +52,8 @@ add_executable(AllTest_AARCH64
         src/Formatting/NumberFormatting.cpp
         tests/Algorithms/InsertionSortTest.cpp
         tests/Algorithms/BubbleSortTest.cpp
-        tests/Algorithms/MergeSortTest.cpp)
+        tests/Algorithms/MergeSortTest.cpp
+        tests/Algorithms/HeapSortTest.cpp)
 target_link_libraries(AllTest_AARCH64 PRIVATE GTest::gtest_main)
 
 include(GoogleTest)

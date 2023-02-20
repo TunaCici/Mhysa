@@ -164,6 +164,27 @@ static void max_heapify(std::vector<int>& heap_arr, unsigned int idx) {
     }
 }
 
+static void min_heapify(std::vector<int>& heap_arr, unsigned int idx) {
+    unsigned int left_idx = 2*idx + 1; // Left subtree
+    unsigned int right_idx = 2*idx + 2; // Right subtree
+
+    unsigned int smallest_idx = idx;
+
+    /* Check for the min-heap property */
+    if (left_idx < heap_arr.size() && heap_arr[left_idx] < heap_arr[idx]) {
+        smallest_idx = left_idx;
+    }
+    if (right_idx < heap_arr.size() && heap_arr[right_idx] < heap_arr[smallest_idx]) {
+        smallest_idx = right_idx;
+    }
+
+    /* Float down the heap_arr[idx] */
+    if (smallest_idx != idx) {
+        std::swap(heap_arr[idx], heap_arr[smallest_idx]);
+        min_heapify(heap_arr, smallest_idx);
+    }
+}
+
 static void build_max_heap(std::vector<int>& target_arr) {
     unsigned int first_leaf_idx = target_arr.size() / 2;
 
@@ -171,7 +192,15 @@ static void build_max_heap(std::vector<int>& target_arr) {
     for (int i = first_leaf_idx - 1; 0 <= i; i--) {
         max_heapify(target_arr, i);
     }
+}
 
+static void build_min_heap(std::vector<int>& target_arr) {
+    unsigned int first_leaf_idx = target_arr.size() / 2;
+
+    /* TODO: Try using for_each here */
+    for (int i = first_leaf_idx - 1; 0 <= i; i--) {
+        min_heapify(target_arr, i);
+    }
 }
 
 void heap_sort(std::vector<int>& unsorted_arr, bool ascending) {
@@ -182,19 +211,29 @@ void heap_sort(std::vector<int>& unsorted_arr, bool ascending) {
 
     std::vector<int> sorted_array(unsorted_arr.size());
 
-    /* TODO: Implement build_min_heap to sort by descending order */
-    build_max_heap(unsorted_arr);
+    if (ascending) {
+        build_max_heap(unsorted_arr);
+    }
+    else {
+        build_min_heap(unsorted_arr);
+    }
+
 
     /* TODO: Try using for_each here */
     for (int i = unsorted_arr.size(); 0 < i; i--) {
         sorted_array[i - 1] = unsorted_arr[0];
 
         /* TODO: Maybe implement a better heap data structure? */
-        /* Remove the biggest element */
+        /* Remove the biggest/smallest element that is at the root */
         std::swap(unsorted_arr[0], unsorted_arr[unsorted_arr.size() - 1]);
         unsorted_arr.pop_back();
 
-        max_heapify(unsorted_arr, 0);
+        if (ascending) {
+            max_heapify(unsorted_arr, 0);
+        }
+        else {
+            min_heapify(unsorted_arr, 0);
+        }
     }
 
     /* Replace the unsorted_arr with sorted_arr */
@@ -207,7 +246,6 @@ void quick_sort(std::vector<int>& unsorted_arr, bool ascending) {
         /* No need to sort */
         return;
     }
-
 }
 
 
