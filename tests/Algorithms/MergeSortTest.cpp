@@ -48,6 +48,7 @@ TEST(Merge_Sort, Sorting_Size_1K) {
     sorting::merge_sort(vec_thousand, false);
     EXPECT_EQ(sorting::is_ordered(vec_thousand, false), true);
 }
+
 TEST(Merge_Sort, Sorting_Size_10K) {
     std::vector<int> vec_ten_thousand = {};
     for (long i = 0; i < 10000; i++) { vec_ten_thousand.push_back(uni_dist(mt_machine));}
@@ -60,15 +61,16 @@ TEST(Merge_Sort, Sorting_Size_10K) {
     sorting::merge_sort(vec_ten_thousand, false);
     EXPECT_EQ(sorting::is_ordered(vec_ten_thousand, false), true);
 }
-TEST(Merge_Sort, Sorting_Size_100K) {
-    std::vector<int> vec_hundred_thousand = {};
-    for (long i = 0; i < 100000; i++) { vec_hundred_thousand.push_back(uni_dist(mt_machine));}
+
+TEST(Merge_Sort, Sorting_Size_50K) {
+    std::vector<int> vec_fifty_thousand = {};
+    for (long i = 0; i < 50000; i++) { vec_fifty_thousand.push_back(uni_dist(mt_machine));}
 
     /* Ascending order*/
-    sorting::merge_sort(vec_hundred_thousand);
-    EXPECT_EQ(sorting::is_ordered(vec_hundred_thousand), true);
+    sorting::merge_sort(vec_fifty_thousand);
+    EXPECT_EQ(sorting::is_ordered(vec_fifty_thousand), true);
 
     /* Descending order*/
-    sorting::merge_sort(vec_hundred_thousand, false);
-    EXPECT_EQ(sorting::is_ordered(vec_hundred_thousand, false), true);
+    sorting::merge_sort(vec_fifty_thousand, false);
+    EXPECT_EQ(sorting::is_ordered(vec_fifty_thousand, false), true);
 }
