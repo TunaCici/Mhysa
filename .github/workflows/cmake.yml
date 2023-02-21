@@ -8,17 +8,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake g++-aarch64-linux-gnu
+    
+    - name: Initialize GitHub Modules
+      run: |
+        git submodule update --init --recursive
 
-    - name: Build
+    - name: Build Mhysa
       run: |
         cmake -Bbuild -H.
         cmake --build build --target AllTest_AARCH64
 
-    - name: Run tests
+    - name: Run All Tests
       run: |
         ./build/AllTest_AARCH64
