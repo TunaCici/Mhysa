@@ -240,12 +240,47 @@ void heap_sort(std::vector<int>& unsorted_arr, bool ascending) {
     unsorted_arr.swap(sorted_array);
 }
 
+static int partition(std::vector<int>& arr, int start_idx, int end_idx, bool ascending) {
+    int pivot = arr[end_idx]; // TODO: How to choose pivot? Median-of-3 or etc.
+    int first_idx = start_idx - 1;
+
+    /* Compare each variable with the pivot */
+    /* Put the variable either in the 1st partition(first_idx) or the 2nd partition (second_idx) */
+    for (int second_idx = start_idx; second_idx <= end_idx -1; second_idx++) {
+        if (ascending && arr[second_idx] < pivot) {
+            first_idx++;
+            std::swap(arr[first_idx], arr[second_idx]);
+        }
+        else if (!ascending && pivot < arr[second_idx]){
+            first_idx++;
+            std::swap(arr[first_idx], arr[second_idx]);
+        }
+    }
+
+    /* Swap the pivot so that it lies between the two partitions */
+    first_idx++;
+    std::swap(arr[first_idx], arr[end_idx]);
+
+    return first_idx;
+}
+
+static void quick_sort_helper(std::vector<int>& unsorted_arr, int start_idx, int end_idx, bool ascending) {
+    if (start_idx < end_idx) {
+        int pivot = partition(unsorted_arr, start_idx, end_idx, ascending);
+
+        /* Sort pivot's both left and right sub-array */
+        quick_sort_helper(unsorted_arr, start_idx, pivot - 1, ascending);
+        quick_sort_helper(unsorted_arr, pivot + 1, end_idx, ascending);
+    }
+}
 
 void quick_sort(std::vector<int>& unsorted_arr, bool ascending) {
     if (unsorted_arr.size() <= 1) {
         /* No need to sort */
         return;
     }
+
+    quick_sort_helper(unsorted_arr, 0, unsorted_arr.size() - 1, ascending);
 }
 
 

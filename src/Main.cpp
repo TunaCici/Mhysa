@@ -15,14 +15,14 @@ int main(int argc, char** argv) {
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    std::vector<int> my_arr = {0, 45, 234, 23, 34, 5, -1, -4, 6, -55};
+    std::vector<int> my_arr = {0, 45, 234, 23, 34, 5, -1, -4, 6, -55, -4};
 
-    sorting::heap_sort(my_arr, false);
+    sorting::quick_sort(my_arr, false);
     for (int i : my_arr) {
         DLOG(INFO) << i;
     }
 
-    DLOG(INFO) << "is_ordered: " << sorting::is_ordered(my_arr, false);
+    DLOG(INFO) << "is_ordered: " << sorting::is_ordered(my_arr);
 
     n_result = EXIT_SUCCESS;
     return n_result;
