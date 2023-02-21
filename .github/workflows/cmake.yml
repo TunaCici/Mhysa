@@ -1,0 +1,24 @@
+name: Dracarys
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++-aarch64-linux-gnu
+
+    - name: Build
+      run: |
+        cmake -Bbuild -H.
+        cmake --build build --target AllTest_AARCH64
+
+    - name: Run tests
+      run: |
+        ./build/AllTest_AARCH64
