@@ -43,6 +43,9 @@ TEST(Bubble_Sort, Sorting_Size_1K) {
     sorting::bubble_sort(vec_thousand);
     EXPECT_EQ(sorting::is_ordered(vec_thousand), true);
 
+    /* Shuffle the values */
+    std::shuffle(vec_thousand.begin(), vec_thousand.end(), mt_machine);
+
     /* Descending order */
     sorting::bubble_sort(vec_thousand, false);
     EXPECT_EQ(sorting::is_ordered(vec_thousand, false), true);
@@ -56,6 +59,9 @@ TEST(Bubble_Sort, Sorting_Size_10K) {
     sorting::bubble_sort(vec_ten_thousand);
     EXPECT_EQ(sorting::is_ordered(vec_ten_thousand), true);
 
+    /* Shuffle the values */
+    std::shuffle(vec_ten_thousand.begin(), vec_ten_thousand.end(), mt_machine);
+
     /* Descending order*/
     sorting::bubble_sort(vec_ten_thousand, false);
     EXPECT_EQ(sorting::is_ordered(vec_ten_thousand, false), true);
@@ -68,6 +74,9 @@ TEST(Bubble_Sort, Sorting_Size_50K) {
     /* Ascending order*/
     sorting::bubble_sort(vec_fifty_thousand);
     EXPECT_EQ(sorting::is_ordered(vec_fifty_thousand), true);
+
+    /* Shuffle the values */
+    std::shuffle(vec_fifty_thousand.begin(), vec_fifty_thousand.end(), mt_machine);
 
     /* Descending order*/
     sorting::bubble_sort(vec_fifty_thousand, false);
