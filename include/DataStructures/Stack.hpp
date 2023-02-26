@@ -13,13 +13,19 @@ namespace data_struct{
     class Stack {
     private:
         std::unique_ptr<T[]> m_pContainer;
-
         std::size_t m_nContainerSize{};
-        unsigned int m_nTop{};
+
+        unsigned int m_uTop{};
         bool m_bIsDynamic{};
 
-        const unsigned short m_nGrowSize = 32u;
-        const unsigned short m_nShrinkThreshold = 75u; /* Percent */
+        /* Grow or shrink if */
+        unsigned short m_uContainerUsage{}; /* Percent */
+        const unsigned short m_uMaxAllowedUsage = 90u; /* Percent */
+        const unsigned short m_uGrowPercentage = 25u; /* Percent */
+        const unsigned short m_uShrinkThreshold = 70u; /* Percent */
+        const std::size_t m_nMinAllowedSize = 32u;
+
+        void optimize();
     public:
         Stack(unsigned int size = 0);
         ~Stack();
@@ -27,11 +33,10 @@ namespace data_struct{
         Stack(Stack& other) = delete;
         Stack& operator=(const Stack& other) = delete;
 
-        bool grow();
-        bool shrink();
         bool push(const T& input);
         bool pop(T& output);
         std::size_t size();
+        unsigned short usage();
 
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os, const Stack<U>& obj);

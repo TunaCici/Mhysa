@@ -12,9 +12,13 @@ namespace data_struct {
         DLOG(INFO) << "Constructing..." << std::endl;
 
         this->m_pContainer = nullptr;
-        this->m_nTop = 0u;
         this->m_nContainerSize = size;
+        this->m_uContainerUsage = 0u;
+
+        this->m_uTop = 0u;
         this->m_bIsDynamic = true;
+
+        this->m_uContainerUsage = size;
 
         if (this->m_nContainerSize != 0u) {
             this->m_bIsDynamic = false;
@@ -22,8 +26,8 @@ namespace data_struct {
 
         /* Create the initial container */
         if (this->m_bIsDynamic == true) {
-            this->m_pContainer = std::make_unique<T[]>(this->m_nGrowSize);
-            this->m_nContainerSize = this->m_nGrowSize;
+            this->m_pContainer = std::make_unique<T[]>(this->m_nMinAllowedSize);
+            this->m_nContainerSize = this->m_nMinAllowedSize;
         }
         else {
             this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
@@ -46,56 +50,49 @@ namespace data_struct {
     }
 
     template<typename T>
-    bool Stack<T>::grow() {
-        bool retValue = false;
+    void Stack<T>::optimize() {
+        this->m_uContainerUsage = this->m_uTop * 100u / this->m_nContainerSize;
+        std::size_t optimalContainerSize = this->m_nContainerSize;
 
-        if (this->m_bIsDynamic) {
-            std::size_t newSize = this->m_nContainerSize + this->m_nGrowSize;
-            std::unique_ptr<T[]> newContainer = std::make_unique<T[]>(newSize);
-            std::copy(
-                    this->m_pContainer.get(),
-                    this->m_pContainer.get() + this->m_nContainerSize,
-                    newContainer.get());
+        if (this->m_uMaxAllowedUsage <= this->m_uContainerUsage) {
+            /* TODO: Better way to calculate optimalContainerSize. Use float? */
+            optimalContainerSize = (this->m_nContainerSize * (100u + this->m_uGrowPercentage)) / 100u;
+        }
+        else if (this->m_uContainerUsage <= this->m_uShrinkThreshold) {
+            /* Shrink down to m_uMaxAllowedUsage minus 5. TODO: Explain why 5 is used */
+            unsigned short shrinkPercentage = (100u * this->m_uShrinkThreshold) / (this->m_uMaxAllowedUsage - 5u);
 
-            this->m_nContainerSize = newSize;
-            this->m_pContainer = std::move(newContainer);
-
-            retValue = true;
+            /* TODO: Better way to calculate optimalContainerSize. Use float? */
+            optimalContainerSize = (this->m_nContainerSize * shrinkPercentage) / 100u;
+        }
+        else {
+            /* Already optimized */
         }
 
-        std::size_t size_bytes = sizeof(T) * this->m_nContainerSize;
-        DLOG(INFO) << "Growing in size..." << "New size: " << size_bytes << " Bytes" << std::endl;
-
-        return retValue;
-    }
-
-
-    template<typename T>
-    bool Stack<T>::shrink() {
-        bool retValue = false;
-
-        if (this->m_bIsDynamic) {
-            std::size_t newSize = this->m_nContainerSize - this->m_nGrowSize;
-
-            /* Make sure to not delete old values */
-            if (this->m_nTop < newSize) {
-                std::unique_ptr<T[]> newContainer = std::make_unique<T[]>(newSize);
+        if (optimalContainerSize <= this->m_nMinAllowedSize){
+            /* Do not shrink below a certain size */
+        }
+        else if (optimalContainerSize != this->m_nContainerSize) {
+            try{
+                std::unique_ptr<T[]> newContainer = std::make_unique<T[]>(optimalContainerSize);
                 std::copy(
                         this->m_pContainer.get(),
-                        this->m_pContainer.get() + newSize,
+                        this->m_pContainer.get() + optimalContainerSize,
                         newContainer.get());
 
-                this->m_nContainerSize = newSize;
+                this->m_nContainerSize = optimalContainerSize;
                 this->m_pContainer = std::move(newContainer);
 
-                retValue = true;
+                /* Update container usage value */
+                this->m_uContainerUsage = this->m_uTop * 100u / this->m_nContainerSize;
+
+                std::size_t size_bytes = sizeof(T) * this->m_nContainerSize;
+                DLOG(INFO) << "Resizing to: " << size_bytes << " Bytes" << std::endl;
+            }
+            catch (const std::exception& e) {
+                DLOG(ERROR) << "Error occurred while resizing container: " << e.what() << std::endl;
             }
         }
-
-        std::size_t size_bytes = sizeof(T) * this->m_nContainerSize;
-        DLOG(INFO) << "Shrinking in size..." << "New size: " << size_bytes << " Bytes" << std::endl;
-
-        return retValue;
     }
 
     template<typename T>
@@ -103,26 +100,14 @@ namespace data_struct {
         bool retValue = false;
 
         /* Check for remaining space */
-        bool isFull = (this->m_nContainerSize <= this->m_nTop + 1);
+        bool isFull = (this->m_nContainerSize <= this->m_uTop + 1);
 
         if (!isFull) {
-            this->m_nTop++;
-            this->m_pContainer[this->m_nTop] = input;
+            this->m_uTop++;
+            this->m_pContainer[this->m_uTop] = input;
 
+            this->optimize();
             retValue = true;
-        }
-        else if (isFull && this->m_bIsDynamic) {
-            bool result = this->grow();
-            if (result) {
-                this->m_nTop++;
-                this->m_pContainer[this->m_nTop] = input;
-
-                retValue = true;
-            }
-            else {
-                /* Failed to grow in size */
-                DLOG(WARNING) << "Failed to grow in size" << std::endl;
-            };
         }
         else {
             /* No space left :( */
@@ -135,26 +120,17 @@ namespace data_struct {
     bool Stack<T>::pop(T& output) {
         bool retValue = false;
 
-        if (this->m_nTop != 0u) {
-            output = this->m_pContainer[this->m_nTop];
+        if (this->m_uTop != 0u) {
+            output = this->m_pContainer[this->m_uTop];
 
             /* TODO: What to do with the previous value? */
-            this->m_nTop--;
+            this->m_uTop--;
 
+            this->optimize();
             retValue = true;
         }
-
-        /* Check used space (percentage) */
-        if (retValue && this->m_bIsDynamic) {
-            unsigned short usedSpace = this->m_nTop * 100u / this->m_nContainerSize;
-
-            if (usedSpace <= this->m_nShrinkThreshold && this->m_bIsDynamic) {
-                bool result = this->shrink();
-                if (!result) {
-                    /* Failed to shrink in size */
-                    DLOG(WARNING) << "Failed to shrink in size" << std::endl;
-                }
-            }
+        else {
+            /* Nothing to pop :( */
         }
 
         return retValue;
@@ -162,14 +138,19 @@ namespace data_struct {
 
     template<typename T>
     std::size_t Stack<T>::size() {
-        return this->m_nTop;
+        return this->m_uTop;
+    }
+
+    template<typename T>
+    unsigned short Stack<T>::usage() {
+        return this->m_uContainerUsage;
     }
 
     template<typename U>
     std::ostream& operator<<(std::ostream& os, const Stack<U>& obj) {
-        if (obj.m_nTop < obj.m_nGrowSize) {
+        if (obj.m_uTop < obj.m_nMinAllowedSize) {
             /* Output all elements */
-            for (std::size_t i = 0 ; i <= obj.m_nTop; i++) {
+            for (std::size_t i = 0 ; i <= obj.m_uTop; i++) {
                 os << obj.m_pContainer[i] << " ";
             }
         }
@@ -182,7 +163,7 @@ namespace data_struct {
             os << "... ";
 
             /* Output last 3 elements */
-            for (std::size_t i = obj.m_nTop - 3; i <= obj.m_nTop; i++) {
+            for (std::size_t i = obj.m_uTop - 3; i <= obj.m_uTop; i++) {
                 os << obj.m_pContainer[i] << " ";
             }
         }
