@@ -18,8 +18,6 @@ namespace data_struct {
         this->m_uTop = 0u;
         this->m_bIsDynamic = true;
 
-        this->m_uContainerUsage = size;
-
         if (this->m_nContainerSize != 0u) {
             this->m_bIsDynamic = false;
         }
