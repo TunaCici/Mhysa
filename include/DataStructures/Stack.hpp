@@ -23,11 +23,11 @@ namespace data_struct{
         const unsigned short m_uMaxAllowedUsage = 90u; /* Percent */
         const unsigned short m_uGrowPercentage = 25u; /* Percent */
         const unsigned short m_uShrinkThreshold = 70u; /* Percent */
-        const std::size_t m_nMinAllowedSize = 32u;
+        std::size_t m_nMinAllowedSize = 32u;
 
         void optimize();
     public:
-        Stack(unsigned int size = 0);
+        Stack(unsigned int size = 0, bool dynamic = true);
         ~Stack();
 
         Stack(Stack& other) = delete;
@@ -36,7 +36,9 @@ namespace data_struct{
         bool push(const T& input);
         bool pop(T& output);
         std::size_t size();
+        std::size_t container_size();
         unsigned short usage();
+        bool is_dynamic();
 
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os, const Stack<U>& obj);

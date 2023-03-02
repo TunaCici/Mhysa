@@ -2,49 +2,47 @@
 // Created by Tuna Cici on 25.02.2023.
 //
 
-#include "glog/logging.h"
-
 #include "DataStructures/Stack.hpp"
 
 namespace data_struct {
     template<typename T>
-    Stack<T>::Stack(unsigned int size) {
-        DLOG(INFO) << "Constructing..." << std::endl;
+    Stack<T>::Stack(unsigned int size, bool dynamic) {
+        if (size == std::numeric_limits<unsigned int>::max()) {
+            throw std::invalid_argument("Possible integer overflow. Size was set to: " + std::to_string(size));
+        }
 
         this->m_pContainer = nullptr;
-        this->m_nContainerSize = size;
+        this->m_nContainerSize = size + 1u; /* First element is empty on purpose */
         this->m_uContainerUsage = 0u;
 
         this->m_uTop = 0u;
-        this->m_bIsDynamic = true;
-
-        if (this->m_nContainerSize != 0u) {
-            this->m_bIsDynamic = false;
-        }
+        this->m_bIsDynamic = dynamic;
 
         /* Create the initial container */
         if (this->m_bIsDynamic == true) {
-            this->m_pContainer = std::make_unique<T[]>(this->m_nMinAllowedSize);
-            this->m_nContainerSize = this->m_nMinAllowedSize;
+            /* Initial size cannot be smaller than m_nMinAllowedSize */
+            if (this->m_nContainerSize <= this->m_nMinAllowedSize) {
+                this->m_nContainerSize = this->m_nMinAllowedSize + 1u; /* First element is empty on purpose */
+            }
+
+            /* Make sure that the empty container does not shrink below the initial size when 'optimize()' */
+            this->m_nMinAllowedSize = this->m_nContainerSize;
+
+            this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
         }
         else {
             this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
         }
 
-        DLOG(INFO) << "Created an array of type T elements with size: " << this->m_nContainerSize << std::endl;
-
-        /* Accessing all array elements */
-        for (std::size_t idx = 0; idx < this->m_nContainerSize; idx++)  {
-            this->m_pContainer[idx] = 0;
-            auto temp = this->m_pContainer[idx];
+        /* Accessing all array elements just in case */
+        for (std::size_t idx = 0; idx < this->m_nContainerSize; idx++) {
+            T temp = this->m_pContainer[idx];
         }
-
-        DLOG(INFO) << "Validated the newly created array" << std::endl;
     }
 
     template<typename T>
     Stack<T>::~Stack() {
-        DLOG(INFO) << "Deconstructing..." << std::endl;
+        this->m_pContainer = nullptr;
     }
 
     template<typename T>
@@ -67,10 +65,12 @@ namespace data_struct {
             /* Already optimized */
         }
 
-        if (optimalContainerSize <= this->m_nMinAllowedSize){
-            /* Do not shrink below a certain size */
+        /* Do not shrink below the m_nMinAllowedSize */
+        if (optimalContainerSize < this->m_nMinAllowedSize){
+            optimalContainerSize = this->m_nMinAllowedSize;
         }
-        else if (optimalContainerSize != this->m_nContainerSize) {
+
+        if (optimalContainerSize != this->m_nContainerSize) {
             try{
                 std::unique_ptr<T[]> newContainer = std::make_unique<T[]>(optimalContainerSize);
                 std::copy(
@@ -83,12 +83,9 @@ namespace data_struct {
 
                 /* Update container usage value */
                 this->m_uContainerUsage = this->m_uTop * 100u / this->m_nContainerSize;
-
-                std::size_t size_bytes = sizeof(T) * this->m_nContainerSize;
-                DLOG(INFO) << "Resizing to: " << size_bytes << " Bytes" << std::endl;
             }
             catch (const std::exception& e) {
-                DLOG(ERROR) << "Error occurred while resizing container: " << e.what() << std::endl;
+                /* TODO: Do nothing for now */
             }
         }
     }
@@ -104,7 +101,10 @@ namespace data_struct {
             this->m_uTop++;
             this->m_pContainer[this->m_uTop] = input;
 
-            this->optimize();
+            if(this->m_bIsDynamic) {
+                this->optimize();
+            }
+
             retValue = true;
         }
         else {
@@ -124,7 +124,10 @@ namespace data_struct {
             /* TODO: What to do with the previous value? */
             this->m_uTop--;
 
-            this->optimize();
+            if(this->m_bIsDynamic) {
+                this->optimize();
+            }
+
             retValue = true;
         }
         else {
@@ -140,8 +143,18 @@ namespace data_struct {
     }
 
     template<typename T>
+    std::size_t Stack<T>::container_size() {
+        return this->m_nContainerSize - 1u;
+    }
+
+    template<typename T>
     unsigned short Stack<T>::usage() {
         return this->m_uContainerUsage;
+    }
+
+    template<typename T>
+    bool Stack<T>::is_dynamic() {
+        return this->m_bIsDynamic;
     }
 
     template<typename U>
