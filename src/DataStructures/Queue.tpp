@@ -1,38 +1,37 @@
 //
-// Created by Tuna Cici on 25.02.2023.
+// Created by Tuna Cici on 4.03.2023.
 //
 
-#include "DataStructures/Stack.hpp"
+#include "DataStructures/Queue.hpp"
 
 namespace data_struct {
     template<typename T>
-    Stack<T>::Stack(unsigned int size, bool dynamic) {
+    Queue<T>::Queue(unsigned int size, bool dynamic) {
         if (size == std::numeric_limits<unsigned int>::max()) {
             throw std::invalid_argument("Possible integer overflow. Size was set to: " + std::to_string(size));
         }
 
         this->m_pContainer = nullptr;
-        this->m_nContainerSize = size + 1u; /* First element is empty on purpose */
-        this->m_uContainerUsage = 0u;
-
-        this->m_uTop = 0u;
+        this->m_nContainerSize = size;
         this->m_bIsDynamic = dynamic;
 
-        /* Create the initial container */
+        this->m_uHead = 0u;
+        this->m_uTail = 0u;
+        this->m_uSize = 0u;
+
+        this->m_uContainerUsage = 0u;
+
         if (this->m_bIsDynamic == true) {
-            /* Initial size cannot be smaller than m_nMinAllowedSize */
+            /* Initial size cannot be smaller than m_nMinAllowedSize if dynamic active */
             if (this->m_nContainerSize <= this->m_nMinAllowedSize) {
-                this->m_nContainerSize = this->m_nMinAllowedSize + 1u; /* First element is empty on purpose */
+                this->m_nContainerSize = this->m_nMinAllowedSize;
             }
 
             /* Make sure that the empty container does not shrink below the initial size when 'optimize()' */
             this->m_nMinAllowedSize = this->m_nContainerSize;
+        }
 
-            this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
-        }
-        else {
-            this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
-        }
+        this->m_pContainer = std::make_unique<T[]>(this->m_nContainerSize);
 
         /* Accessing all array elements just in case */
         for (std::size_t idx = 0; idx < this->m_nContainerSize; idx++) {
@@ -41,13 +40,13 @@ namespace data_struct {
     }
 
     template<typename T>
-    Stack<T>::~Stack() {
+    Queue<T>::~Queue() {
         this->m_pContainer = nullptr;
     }
 
     template<typename T>
-    void Stack<T>::optimize() {
-        this->m_uContainerUsage = this->m_uTop * 100u / (this->m_nContainerSize - 1u);
+    void Queue<T>::optimize() {
+        this->m_uContainerUsage = this->m_uSize * 100u / this->m_nContainerSize;
         std::size_t optimalContainerSize = this->m_nContainerSize;
 
         if (this->m_uMaxAllowedUsage <= this->m_uContainerUsage) {
@@ -76,13 +75,15 @@ namespace data_struct {
 
                 /* Move from one container to other */
                 /* TODO: More efficient way possible? */
-                std::copy(
-                        this->m_pContainer.get(),
-                        this->m_pContainer.get() + optimalContainerSize,
-                        newContainer.get());
+                for (std::size_t idx = 0u; idx < this->m_uSize; idx++) {
+                    newContainer[idx] = this->m_pContainer[this->m_uHead];
+                    this->m_uHead = (this->m_uHead + 1u) % this->m_nContainerSize;
+                }
 
                 this->m_nContainerSize = optimalContainerSize;
                 this->m_pContainer = std::move(newContainer);
+                this->m_uHead = 0u;
+                this->m_uTail = this->m_uSize;
             }
             catch (const std::exception& e) {
                 /* TODO: Do nothing for now */
@@ -90,99 +91,114 @@ namespace data_struct {
         }
     }
 
+
     template<typename T>
-    bool Stack<T>::push(const T& input) {
+    bool Queue<T>::enqueue(const T &input) {
         bool retValue = false;
 
         /* Check for remaining space */
-        bool isFull = (this->m_nContainerSize <= this->m_uTop + 1);
+        bool isFull = (this->m_nContainerSize <= this->m_uSize);
 
         if (!isFull) {
-            this->m_uTop++;
-            this->m_pContainer[this->m_uTop] = input;
+            this->m_pContainer[this->m_uTail] = input;
+            this->m_uTail = (this->m_uTail + 1u) % this->m_nContainerSize;
 
-            if(this->m_bIsDynamic) {
+            this->m_uSize += 1u;
+
+            if (this->m_bIsDynamic) {
                 this->optimize();
             }
 
-            this->m_uContainerUsage = this->m_uTop * 100u / (this->m_nContainerSize - 1u);
+            this->m_uContainerUsage = this->m_uSize * 100u / this->m_nContainerSize;
 
             retValue = true;
-        }
-        else {
-            /* No space left :( */
         }
 
         return retValue;
     }
 
     template<typename T>
-    bool Stack<T>::pop(T& output) {
+    bool Queue<T>::dequeue(T &output) {
         bool retValue = false;
 
-        if (this->m_uTop != 0u) {
-            output = this->m_pContainer[this->m_uTop];
+        bool isEmpty = (this->m_uSize == 0);
+
+        if (!isEmpty) {
+            output = this->m_pContainer[this->m_uHead];
 
             /* TODO: What to do with the previous value? */
-            this->m_uTop--;
+            this->m_uHead = (this->m_uHead + 1u) % this->m_nContainerSize;
 
-            if(this->m_bIsDynamic) {
+            if (0u != this->m_uSize) {
+                this->m_uSize -= 1u;
+            }
+
+            if (this->m_bIsDynamic) {
                 this->optimize();
             }
 
-            this->m_uContainerUsage = (this->m_uTop + 1u) * 100u / (this->m_nContainerSize - 1u);
+            this->m_uContainerUsage = this->m_uSize * 100u / this->m_nContainerSize;
 
             retValue = true;
-        }
-        else {
-            /* Nothing to pop :( */
         }
 
         return retValue;
     }
 
     template<typename T>
-    std::size_t Stack<T>::size() {
-        return this->m_uTop;
+    std::size_t Queue<T>::size() {
+        return this->m_uSize;
     }
 
     template<typename T>
-    std::size_t Stack<T>::container_size() {
-        return this->m_nContainerSize - 1u;
+    std::size_t Queue<T>::container_size() {
+        return this->m_nContainerSize;
     }
 
     template<typename T>
-    unsigned short Stack<T>::usage() {
+    unsigned short Queue<T>::usage() {
         return this->m_uContainerUsage;
     }
 
     template<typename T>
-    bool Stack<T>::is_dynamic() {
+    bool Queue<T>::is_dynamic() {
         return this->m_bIsDynamic;
     }
 
     template<typename U>
-    std::ostream& operator<<(std::ostream& os, const Stack<U>& obj) {
-        if (obj.m_uTop < obj.m_nMinAllowedSize) {
+    std::ostream& operator<<(std::ostream& os, const Queue<U>& obj) {
+        std::size_t temp = obj.m_uHead;
+
+        if (obj.m_uSize < obj.m_nMinAllowedSize) {
             /* Output all elements */
-            for (std::size_t i = 0 ; i <= obj.m_uTop; i++) {
-                os << obj.m_pContainer[i] << " ";
+            for (std::size_t i = 0 ; i < obj.m_uSize; i++) {
+                os << obj.m_pContainer[temp] << " ";
+                temp = (temp + 1u) % obj.m_nContainerSize;
             }
         }
         else {
             /* Output first 3 elements */
-            for (std::size_t i = 0; i <= 3; i++) {
-                os << obj.m_pContainer[i] << " ";
+            temp = obj.m_uHead;
+            for (std::size_t i = 0u; i < 3; i++) {
+                os << obj.m_pContainer[temp] << " ";
+                temp = (temp + 1u) % obj.m_nContainerSize;
             }
 
             os << "... ";
 
             /* Output last 3 elements */
-            for (std::size_t i = obj.m_uTop - 3; i <= obj.m_uTop; i++) {
-                os << obj.m_pContainer[i] << " ";
+            temp = obj.m_uTail;
+
+            /* Move 3 index back */
+            temp = (temp != 0u) ? (temp - 1u) : obj.m_nContainerSize - 1u;
+            temp = (temp != 0u) ? (temp - 1u) : obj.m_nContainerSize - 1u;
+            temp = (temp != 0u) ? (temp - 1u) : obj.m_nContainerSize - 1u;
+
+            for (std::size_t i = 0u; i < 3; i++) {
+                os << obj.m_pContainer[temp] << " ";
+                temp = (temp + 1u) % obj.m_nContainerSize;
             }
         }
         return os;
     }
-
 }

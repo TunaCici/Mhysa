@@ -1,22 +1,24 @@
 //
-// Created by Tuna Cici on 25.02.2023.
+// Created by Tuna Cici on 4.03.2023.
 //
 
-#ifndef MHYSA_STACK_HPP
-#define MHYSA_STACK_HPP
+#ifndef MHYSA_QUEUE_HPP
+#define MHYSA_QUEUE_HPP
 
 #include <ostream>
 #include <memory>
 
 namespace data_struct {
     template<typename T>
-    class Stack {
+    class Queue {
     private:
         std::unique_ptr<T[]> m_pContainer;
         std::size_t m_nContainerSize{};
-
-        unsigned int m_uTop{};
         bool m_bIsDynamic{};
+
+        unsigned int m_uHead{};
+        unsigned int m_uTail{};
+        std::size_t m_uSize{};
 
         unsigned short m_uContainerUsage{}; /* Percent */
         const unsigned short m_uMaxAllowedUsage = 90u; /* Percent */
@@ -26,14 +28,14 @@ namespace data_struct {
 
         void optimize();
     public:
-        Stack(unsigned int size = 0, bool dynamic = true);
-        ~Stack();
+        Queue(unsigned int size = 0u, bool dynamic = true);
+        ~Queue();
 
-        Stack(Stack& other) = delete;
-        Stack& operator=(const Stack& other) = delete;
+        Queue(Queue& other) = delete;
+        Queue& operator=(const Queue& other) = delete;
 
-        bool push(const T& input);
-        bool pop(T& output);
+        bool enqueue(const T& input);
+        bool dequeue(T& output);
 
         std::size_t size();
         std::size_t container_size();
@@ -41,11 +43,12 @@ namespace data_struct {
         bool is_dynamic();
 
         template<typename U>
-        friend std::ostream& operator<<(std::ostream& os, const Stack<U>& obj);
+        friend std::ostream& operator<<(std::ostream& os, const Queue<U>& obj);
     };
+
 }
 
 /* Template class definitions are in another file. Sorry... */
-#include "DataStructures/Stack.tpp"
+#include "DataStructures/Queue.tpp"
 
 #endif

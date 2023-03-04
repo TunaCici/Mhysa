@@ -69,7 +69,8 @@ add_executable(AllTest_AARCH64
         tests/Algorithms/MergeSortTest.cpp
         tests/Algorithms/HeapSortTest.cpp
         tests/Algorithms/QuickSortTest.cpp
-        tests/DataStructures/StackTest.cpp)
+        tests/DataStructures/StackTest.cpp
+        tests/DataStructures/QueueTest.cpp)
 target_link_libraries(AllTest_AARCH64 PRIVATE GTest::gtest_main)
 
 include(GoogleTest)
