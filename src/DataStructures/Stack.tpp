@@ -47,7 +47,7 @@ namespace data_struct {
 
     template<typename T>
     void Stack<T>::optimize() {
-        this->m_uContainerUsage = this->m_uTop * 100u / this->m_nContainerSize;
+        this->m_uContainerUsage = this->m_uTop * 100u / (this->m_nContainerSize - 1u);
         std::size_t optimalContainerSize = this->m_nContainerSize;
 
         if (this->m_uMaxAllowedUsage <= this->m_uContainerUsage) {
@@ -73,6 +73,9 @@ namespace data_struct {
         if (optimalContainerSize != this->m_nContainerSize) {
             try{
                 std::unique_ptr<T[]> newContainer = std::make_unique<T[]>(optimalContainerSize);
+
+                /* Move from one container to other */
+                /* TODO: More efficient way possible? */
                 std::copy(
                         this->m_pContainer.get(),
                         this->m_pContainer.get() + optimalContainerSize,
@@ -80,9 +83,6 @@ namespace data_struct {
 
                 this->m_nContainerSize = optimalContainerSize;
                 this->m_pContainer = std::move(newContainer);
-
-                /* Update container usage value */
-                this->m_uContainerUsage = this->m_uTop * 100u / this->m_nContainerSize;
             }
             catch (const std::exception& e) {
                 /* TODO: Do nothing for now */
@@ -104,6 +104,8 @@ namespace data_struct {
             if(this->m_bIsDynamic) {
                 this->optimize();
             }
+
+            this->m_uContainerUsage = this->m_uTop * 100u / (this->m_nContainerSize - 1u);
 
             retValue = true;
         }
@@ -127,6 +129,8 @@ namespace data_struct {
             if(this->m_bIsDynamic) {
                 this->optimize();
             }
+
+            this->m_uContainerUsage = (this->m_uTop + 1u) * 100u / (this->m_nContainerSize - 1u);
 
             retValue = true;
         }

@@ -8,7 +8,7 @@
 #include <ostream>
 #include <memory>
 
-namespace data_struct{
+namespace data_struct {
     template<typename T>
     class Stack {
     private:
@@ -18,7 +18,6 @@ namespace data_struct{
         unsigned int m_uTop{};
         bool m_bIsDynamic{};
 
-        /* Grow or shrink if */
         unsigned short m_uContainerUsage{}; /* Percent */
         const unsigned short m_uMaxAllowedUsage = 90u; /* Percent */
         const unsigned short m_uGrowPercentage = 25u; /* Percent */
@@ -35,6 +34,7 @@ namespace data_struct{
 
         bool push(const T& input);
         bool pop(T& output);
+
         std::size_t size();
         std::size_t container_size();
         unsigned short usage();
