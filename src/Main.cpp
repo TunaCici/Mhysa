@@ -9,44 +9,51 @@
 
 #include "Algorithms/Sorting.hpp"
 #include "DataStructures/Stack.hpp"
+#include "DataStructures/Queue.hpp"
 
 int main(int argc, char** argv) {
-    int n_result = EXIT_FAILURE;
+    int nResult = EXIT_FAILURE;
 
     // Initialize logging
-    google::InitGoogleLogging(argv[0]);
     #ifdef DEBUG
+        google::InitGoogleLogging(argv[0]);
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    std::unique_ptr<data_struct::Stack<int>> myIntegerStack;
-    myIntegerStack = std::make_unique<data_struct::Stack<int>>();
+    std::unique_ptr<data_struct::Queue<int>> myIntegerQueue;
+    myIntegerQueue = std::make_unique<data_struct::Queue<int>>(64, true);
 
-    for(std::size_t i = 1; i <= 100; i++) {
-        bool result = myIntegerStack->push((int) i);
-        DLOG(INFO) << "Container usage: " << myIntegerStack->usage() << "%" << std::endl;
+    for(std::size_t i = 1; i <= 128; i++) {
+        bool result = myIntegerQueue->enqueue((int) i);
+        DLOG(INFO) << "Container usage: " << myIntegerQueue->usage() << "%" << std::endl;
 
         if (!result) {
-            DLOG(FATAL) << "Oh no..." << std::endl;
+            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        }
+        else {
+            DLOG(INFO) << "Enqueued: " << i << std::endl;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
     }
 
-    DLOG(INFO) << "Size: " << myIntegerStack->size() << " Stack: " << *myIntegerStack << std::endl;
+    DLOG(INFO) << "Size: " << myIntegerQueue->size() << " Queue: " << *myIntegerQueue << std::endl;
 
     int temp = 0;
-    for(std::size_t i = 1; i <= 100; i++) {
-        bool result = myIntegerStack->pop(temp);
-        DLOG(INFO) << "Container usage: " << myIntegerStack->usage() << "%" << std::endl;
+    for(std::size_t i = 1; i <= 128; i++) {
+        bool result = myIntegerQueue->dequeue(temp);
+        DLOG(INFO) << "Container usage: " << myIntegerQueue->usage() << "%" << std::endl;
 
         if (!result) {
-            DLOG(FATAL) << "Oh no..." << std::endl;
+            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        }
+        else {
+            DLOG(INFO) << "Dequeued: " << i << std::endl;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds (250));
     }
 
-    DLOG(INFO) << *myIntegerStack << std::endl;
+    DLOG(INFO) << "Size: " << myIntegerQueue->size() << " Queue: " << *myIntegerQueue << std::endl;
 
-    n_result = EXIT_SUCCESS;
-    return n_result;
+    nResult = EXIT_SUCCESS;
+    return nResult;
 }
