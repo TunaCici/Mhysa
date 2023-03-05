@@ -10,6 +10,7 @@
 #include "Algorithms/Sorting.hpp"
 #include "DataStructures/Stack.hpp"
 #include "DataStructures/Queue.hpp"
+#include "DataStructures/LinkedList.hpp"
 
 int main(int argc, char** argv) {
     int nResult = EXIT_FAILURE;
@@ -20,39 +21,35 @@ int main(int argc, char** argv) {
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    std::unique_ptr<data_struct::Queue<int>> myIntegerQueue;
-    myIntegerQueue = std::make_unique<data_struct::Queue<int>>(64, true);
+    std::unique_ptr<data_struct::LinkedList<int>> myLinkedList;
+    myLinkedList = std::make_unique<data_struct::LinkedList<int>>(data_struct::double_link);
 
-    for(std::size_t i = 1; i <= 128; i++) {
-        bool result = myIntegerQueue->enqueue((int) i);
-        DLOG(INFO) << "Container usage: " << myIntegerQueue->usage() << "%" << std::endl;
+    for(std::size_t i = 1; i <= 48; i++) {
+        bool result = myLinkedList->push(i * 3);
 
-        if (!result) {
-            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        if (result) {
+            DLOG(INFO) << *myLinkedList << std::endl;
         }
         else {
-            DLOG(INFO) << "Enqueued: " << i << std::endl;
+            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
         }
+
         std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
     }
 
-    DLOG(INFO) << "Size: " << myIntegerQueue->size() << " Queue: " << *myIntegerQueue << std::endl;
+    for(std::size_t i = 1; i <= 48; i++) {
+        int temp = 0;
+        bool result = myLinkedList->pop(temp);
 
-    int temp = 0;
-    for(std::size_t i = 1; i <= 128; i++) {
-        bool result = myIntegerQueue->dequeue(temp);
-        DLOG(INFO) << "Container usage: " << myIntegerQueue->usage() << "%" << std::endl;
-
-        if (!result) {
-            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        if (result) {
+            DLOG(INFO) << *myLinkedList << std::endl;
         }
         else {
-            DLOG(INFO) << "Dequeued: " << i << std::endl;
+            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds (250));
-    }
 
-    DLOG(INFO) << "Size: " << myIntegerQueue->size() << " Queue: " << *myIntegerQueue << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
+    }
 
     nResult = EXIT_SUCCESS;
     return nResult;
