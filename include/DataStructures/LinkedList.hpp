@@ -23,18 +23,14 @@ namespace data_struct {
             T key;
             std::unique_ptr<Node> next;
         };
-
         struct SLNode : public Node {};
-
-        struct DLNode : public Node {
-            Node* prev;
-        };
+        struct DLNode : public Node {Node* prev;};
+        bool create_node(const T& input, std::unique_ptr<Node>& output);
 
         std::unique_ptr<Node> m_pHead{};
         Node* m_pTail{};
 
         NodeTypes m_eNodeType{};
-
         std::size_t m_uSize{};
     public:
         LinkedList(NodeTypes type = NodeTypes::single_link);
@@ -52,11 +48,11 @@ namespace data_struct {
         bool dequeue(T& output);
 
         /* LinkedList operations */
-        bool insert(const std::size_t idx = 0u, const T& input = nullptr);
-        bool remove(const std::size_t idx = 0u, const T& output = nullptr);
+        bool insert(const T& input = nullptr, const std::size_t& idx = 0u);
+        bool remove(const std::size_t& idx = 0u, T& output = nullptr);
 
-        bool search(const T& target = nullptr, std::size_t idx = 0u);
-        bool peek(const std::size_t idx = 0u);
+        bool search(const T& target, std::size_t& idx);
+        bool peek(const std::size_t& idx = 0u, T& target = nullptr);
         bool sort();
         bool reverse();
 
@@ -66,7 +62,6 @@ namespace data_struct {
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os, const LinkedList<U>& obj);
     };
-
 }
 
 #include "DataStructures/LinkedList.tpp"
