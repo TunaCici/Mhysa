@@ -25,13 +25,16 @@ namespace data_struct {
         };
         struct SLNode : public Node {};
         struct DLNode : public Node {Node* prev;};
-        bool create_node(const T& input, std::unique_ptr<Node>& output);
 
         std::unique_ptr<Node> m_pHead{};
         Node* m_pTail{};
 
         NodeTypes m_eNodeType{};
         std::size_t m_uSize{};
+
+
+        bool create_node(const T& input, std::unique_ptr<Node>& output);
+        bool swap_nodes(const std::size_t& idx_a = 0u, const std::size_t& idx_b = 0u);
     public:
         LinkedList(NodeTypes type = NodeTypes::single_link);
         ~LinkedList();

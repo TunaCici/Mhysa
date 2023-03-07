@@ -51,6 +51,92 @@ namespace data_struct {
     }
 
     template<typename T>
+    bool LinkedList<T>::swap_nodes(const size_t& idx_a, const size_t& idx_b) {
+        bool retValue = false;
+
+        /* Check if both indexes are within range */
+        if (this->m_uSize <= idx_a || this->m_uSize <= idx_b) {
+            return retValue;
+        }
+
+        /* Nodes are the same */
+        if (idx_a == idx_b) {
+            retValue = true;
+        }
+        /* One of them is head */
+        else if (idx_a == 0u || idx_b == 0u) {
+            const std::size_t notHeadIdx = std::max(idx_a, idx_b);
+
+            /* Iterate until you reach the parent of notHead */
+            /* Not really parent, but its previous node :/ */
+            /* TODO: Make use of double_link's prev pointer? */
+            Node* parent = this->m_pHead.get();
+            for (std::size_t iterCount = 0u; iterCount < notHeadIdx - 1u; iterCount++) {
+                parent = parent->next.get();
+            }
+
+            /* Temporarily hold the std::unique_ptr that is the head */
+            Node* tempPtr = this->m_pHead.get();
+
+            /* Swap the 'next' values */
+            std::swap(this->m_pHead, parent->next);
+            std::swap(this->m_pHead->next, tempPtr->next);
+
+            /* Swap the 'prev' values if possible */
+            if (this->m_eNodeType != NodeTypes::single_link) {
+                std::swap(this->m_pHead->prev, tempPtr->prev);
+            }
+
+            /* Finally update the tail */
+            if (notHeadIdx == this->m_uSize - 1u) {
+                this->m_pTail = tempPtr;
+            }
+
+            retValue = true;
+
+        }
+        else {
+            /* Iterate until you reach the parent of idx_a */
+            /* Not really parent, but its previous node :/ */
+            /* TODO: Make use of double_link's prev pointer? */
+            Node* parent_a = this->m_pHead.get();
+            for (std::size_t iterCount = 0u; iterCount < idx_a - 1u; iterCount++) {
+                parent_a = parent_a->next.get();
+            }
+
+            /* Iterate until you reach the parent of idx_b */
+            /* Not really parent, but its previous node :/ */
+            /* TODO: Make use of double_link's prev pointer? */
+            Node* parent_b = this->m_pHead.get();
+            for (std::size_t iterCount = 0u; iterCount < idx_b - 1u; iterCount++) {
+                parent_b = parent_b->next.get();
+            }
+
+            /* Swap the 'next' values */
+            std::swap(parent_a->next, parent_b->next);
+            std::swap(parent_a->next->next, parent_b->next);
+
+            /* Swap the 'prev' values if possible */
+            if (this->m_eNodeType != NodeTypes::single_link) {
+                std::swap(parent_a->next->prev, parent_b->prev);
+            }
+
+            /* Finally update the tail */
+            if (idx_a == this->m_uSize - 1u) {
+                this->m_pTail = parent_b->next.get();
+            }
+            else if (idx_b == this->m_uSize - 1u) {
+                this->m_pTail = parent_a->next.get();
+            }
+
+            retValue = true;
+        }
+
+
+        return retValue;
+    }
+
+    template<typename T>
     bool LinkedList<T>::push(const T& input) {
         bool retValue = false;
 
@@ -229,7 +315,6 @@ namespace data_struct {
         bool retValue = false;
 
         /* TODO: Make use of double_link's prev pointer? */
-
         Node* iter = this->m_pHead.get();
         std::size_t iterCount = 0u;
         for (iterCount = 0u; iterCount < this->m_uSize; iterCount++) {
@@ -268,7 +353,20 @@ namespace data_struct {
 
     template<typename T>
     bool LinkedList<T>::sort() {
-        return false;
+        bool retValue = false;
+
+        /* Limitation(s) */
+        /* 1. Time complexity of avg. O(NLOG(N)) */
+        /* 2. Space complexity of O(1) (No heap allocation. Assume stack is unlimited) */
+        /* 3. Operations can be done using only the nodes. (Swapping data is not allowed) */
+
+        /* Design choice(s) */
+        /* 1. Quick sort will be used */
+        /* 2. List will be sorted in ascending order */
+
+
+
+        return retValue;
     }
 
     template<typename T>
