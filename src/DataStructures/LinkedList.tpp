@@ -51,12 +51,20 @@ namespace data_struct {
     }
 
     template<typename T>
-    bool LinkedList<T>::swap_nodes(const size_t& idx_a, const size_t& idx_b) {
+    bool LinkedList<T>::swap_nodes(size_t idx_a, size_t idx_b) {
         bool retValue = false;
 
         /* Check if both indexes are within range */
         if (this->m_uSize <= idx_a || this->m_uSize <= idx_b) {
             return retValue;
+        }
+
+        /* Apparently I can't std::swap an std::unique_ptr with a nullptr */
+        /* BUG: When idx_a == m_uSize -1 and idx_b == m_uSize - 2 I get the above error */
+        /* The below line makes sure idx_a is always smaller so that the above bug does not occur */
+        /* Because of this 'fix', parameters can't be 'const' :( */
+        if (idx_b < idx_a) {
+            std::swap(idx_a, idx_b);
         }
 
         /* Nodes are the same */
@@ -84,7 +92,10 @@ namespace data_struct {
 
             /* Swap the 'prev' values if possible */
             if (this->m_eNodeType != NodeTypes::single_link) {
-                std::swap(this->m_pHead->prev, tempPtr->prev);
+                std::swap(
+                    static_cast<DLNode*>(this->m_pHead.get())->prev,
+                    static_cast<DLNode*>(tempPtr)->prev
+                );
             }
 
             /* Finally update the tail */
@@ -93,7 +104,6 @@ namespace data_struct {
             }
 
             retValue = true;
-
         }
         else {
             /* Iterate until you reach the parent of idx_a */
@@ -114,11 +124,19 @@ namespace data_struct {
 
             /* Swap the 'next' values */
             std::swap(parent_a->next, parent_b->next);
-            std::swap(parent_a->next->next, parent_b->next);
+            if (parent_b->next->next == nullptr) {
+                parent_b->next->next = std::move(parent_a->next->next);
+            }
+            else {
+                std::swap(parent_a->next->next, parent_b->next->next);
+            }
 
             /* Swap the 'prev' values if possible */
             if (this->m_eNodeType != NodeTypes::single_link) {
-                std::swap(parent_a->next->prev, parent_b->prev);
+                std::swap(
+                    static_cast<DLNode*>(parent_a->next.get())->prev,
+                    static_cast<DLNode*>(parent_b)->prev
+                );
             }
 
             /* Finally update the tail */
@@ -352,6 +370,42 @@ namespace data_struct {
     }
 
     template<typename T>
+    int LinkedList<T>::quick_sort_partition(const int& start_idx, const int& end_idx) {
+        T pivot;
+        this->peek(end_idx, pivot); // TODO: How to choose pivot? Median-of-3 or etc.
+        int first_idx = start_idx - 1;
+
+        /* Compare each variable with the pivot */
+        /* Put the variable either in the 1st partition(first_idx) or the 2nd partition (second_idx) */
+        for (int second_idx = start_idx; second_idx <= end_idx - 1; second_idx++) {
+            T output;
+            this->peek(second_idx, output);
+
+            if (output < pivot) {
+                first_idx++;
+                this->swap_nodes(first_idx, second_idx);
+            }
+        }
+
+        /* Swap the pivot so that it lies between the two partitions */
+        first_idx++;
+        this->swap_nodes(first_idx, end_idx);
+
+        return first_idx;
+    }
+
+    template<typename T>
+    void LinkedList<T>::quick_sort(const int& start_idx, const int& end_idx) {
+        if (start_idx < end_idx) {
+            std::size_t pivot = this->quick_sort_partition(start_idx, end_idx);
+
+            /* Sort pivot's both left and right sub-array */
+            this->quick_sort(start_idx, pivot - 1u);
+            this->quick_sort(pivot + 1, end_idx);
+        }
+    }
+
+    template<typename T>
     bool LinkedList<T>::sort() {
         bool retValue = false;
 
@@ -364,7 +418,30 @@ namespace data_struct {
         /* 1. Quick sort will be used */
         /* 2. List will be sorted in ascending order */
 
+        if (this->m_uSize <= 1u) {
+            retValue = true;
+        }
+        else {
+            this->quick_sort(0u, this->m_uSize - 1u);
 
+            /* Check if ordered */
+            /* Iterate until you reach the target - 1 */
+            Node* target = this->m_pHead.get();
+            std::size_t iterCount = 0u;
+            T prevKey = target->key;
+
+            for (iterCount = 1u; iterCount < this->m_uSize; iterCount++) {
+                target = target->next.get();
+
+                if (target && (target->key < prevKey)) {
+                    break;
+                }
+            }
+
+            if (iterCount == this->m_uSize) {
+                retValue = true;
+            }
+        }
 
         return retValue;
     }
@@ -425,7 +502,6 @@ namespace data_struct {
                 current = current->next.get();
                 lastThree[2] = current->key;
                 current = current->next.get();
-
             }
             else {
                 current = obj.m_pTail;

@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
     std::unique_ptr<data_struct::LinkedList<int>> myLinkedList;
     myLinkedList = std::make_unique<data_struct::LinkedList<int>>(data_struct::double_link);
 
-    for(std::size_t i = 1; i <= 48; i++) {
-        bool result = myLinkedList->push(i * 3);
+    for(std::size_t i = 64; 1 <= i; i--) {
+        bool result = myLinkedList->enqueue(i * 3);
 
         if (result) {
             DLOG(INFO) << *myLinkedList << std::endl;
@@ -34,15 +34,28 @@ int main(int argc, char** argv) {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
+        // std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds (3000 ));
+    bool result = myLinkedList->sort();
+
+    if (result) {
+        DLOG(INFO) << *myLinkedList << std::endl;
+    }
+    else {
+        DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+    }
+
+    return 13;
+
+
     for(std::size_t i = 1; i <= 48; i++) {
-        int temp = 0;
-        bool result = myLinkedList->pop(temp);
+        std::size_t idx = 0;
+        bool result = myLinkedList->search(i, idx);
 
         if (result) {
-            DLOG(INFO) << *myLinkedList << std::endl;
+            DLOG(INFO) << idx << std::endl;
         }
         else {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
