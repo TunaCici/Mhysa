@@ -33,10 +33,8 @@ namespace data_struct {
         std::size_t m_uSize{};
 
         bool create_node(const T& input, std::unique_ptr<Node>& output);
-        bool swap_nodes(std::size_t idx_a = 0u, std::size_t idx_b = 0u);
         int quick_sort_partition(const int& start_idx = 0, const int& end_idx = 0);
         void quick_sort(const int& start_idx = 0, const int& end_idx = 0);
-
     public:
         LinkedList(NodeTypes type = NodeTypes::single_link);
         ~LinkedList();
@@ -63,6 +61,7 @@ namespace data_struct {
 
         std::size_t size();
         NodeTypes type();
+        bool swap_nodes(const std::size_t& idx_a = 0u, const std::size_t& idx_b = 0u);
 
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os, const LinkedList<U>& obj);

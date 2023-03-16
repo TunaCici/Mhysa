@@ -51,7 +51,7 @@ namespace data_struct {
     }
 
     template<typename T>
-    bool LinkedList<T>::swap_nodes(size_t idx_a, size_t idx_b) {
+    bool LinkedList<T>::swap_nodes(const std::size_t& idx_a, const std::size_t& idx_b) {
         bool retValue = false;
 
         /* Check if both indexes are within range */
@@ -59,97 +59,26 @@ namespace data_struct {
             return retValue;
         }
 
-        /* Apparently I can't std::swap an std::unique_ptr with a nullptr */
-        /* BUG: When idx_a == m_uSize -1 and idx_b == m_uSize - 2 I get the above error */
-        /* The below line makes sure idx_a is always smaller so that the above bug does not occur */
-        /* Because of this 'fix', parameters can't be 'const' :( */
-        if (idx_b < idx_a) {
-            std::swap(idx_a, idx_b);
-        }
-
         /* Nodes are the same */
         if (idx_a == idx_b) {
             retValue = true;
         }
-        /* One of them is head */
-        else if (idx_a == 0u || idx_b == 0u) {
-            const std::size_t notHeadIdx = std::max(idx_a, idx_b);
-
-            /* Iterate until you reach the parent of notHead */
-            /* Not really parent, but its previous node :/ */
-            /* TODO: Make use of double_link's prev pointer? */
-            Node* parent = this->m_pHead.get();
-            for (std::size_t iterCount = 0u; iterCount < notHeadIdx - 1u; iterCount++) {
-                parent = parent->next.get();
-            }
-
-            /* Temporarily hold the std::unique_ptr that is the head */
-            Node* tempPtr = this->m_pHead.get();
-
-            /* Swap the 'next' values */
-            std::swap(this->m_pHead, parent->next);
-            std::swap(this->m_pHead->next, tempPtr->next);
-
-            /* Swap the 'prev' values if possible */
-            if (this->m_eNodeType != NodeTypes::single_link) {
-                std::swap(
-                    static_cast<DLNode*>(this->m_pHead.get())->prev,
-                    static_cast<DLNode*>(tempPtr)->prev
-                );
-            }
-
-            /* Finally update the tail */
-            if (notHeadIdx == this->m_uSize - 1u) {
-                this->m_pTail = tempPtr;
-            }
-
-            retValue = true;
-        }
         else {
-            /* Iterate until you reach the parent of idx_a */
-            /* Not really parent, but its previous node :/ */
-            /* TODO: Make use of double_link's prev pointer? */
-            Node* parent_a = this->m_pHead.get();
-            for (std::size_t iterCount = 0u; iterCount < idx_a - 1u; iterCount++) {
-                parent_a = parent_a->next.get();
+            std::reference_wrapper<Node> nodeA = *(this->m_pHead.get());
+            std::reference_wrapper<Node> nodeB = *(this->m_pHead.get());
+
+            for (std::size_t iter = 0u; iter < idx_a; iter++) {
+                nodeA = *(nodeA.get().next.get());
+            }
+            for (std::size_t iter = 0u; iter < idx_b; iter++) {
+                nodeB = *(nodeB.get().next.get());
             }
 
-            /* Iterate until you reach the parent of idx_b */
-            /* Not really parent, but its previous node :/ */
-            /* TODO: Make use of double_link's prev pointer? */
-            Node* parent_b = this->m_pHead.get();
-            for (std::size_t iterCount = 0u; iterCount < idx_b - 1u; iterCount++) {
-                parent_b = parent_b->next.get();
-            }
-
-            /* Swap the 'next' values */
-            std::swap(parent_a->next, parent_b->next);
-            if (parent_b->next->next == nullptr) {
-                parent_b->next->next = std::move(parent_a->next->next);
-            }
-            else {
-                std::swap(parent_a->next->next, parent_b->next->next);
-            }
-
-            /* Swap the 'prev' values if possible */
-            if (this->m_eNodeType != NodeTypes::single_link) {
-                std::swap(
-                    static_cast<DLNode*>(parent_a->next.get())->prev,
-                    static_cast<DLNode*>(parent_b)->prev
-                );
-            }
-
-            /* Finally update the tail */
-            if (idx_a == this->m_uSize - 1u) {
-                this->m_pTail = parent_b->next.get();
-            }
-            else if (idx_b == this->m_uSize - 1u) {
-                this->m_pTail = parent_a->next.get();
-            }
+            /* Swap the keys */
+            std::swap(nodeA.get().key, nodeB.get().key);
 
             retValue = true;
         }
-
 
         return retValue;
     }
