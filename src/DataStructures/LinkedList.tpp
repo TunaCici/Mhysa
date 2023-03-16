@@ -52,6 +52,7 @@ namespace data_struct {
 
     template<typename T>
     bool LinkedList<T>::swap_nodes(const std::size_t& idx_a, const std::size_t& idx_b) {
+        /* TODO: Swap the actual nodes. Not just the key values!!! In short: do not cheat. */
         bool retValue = false;
 
         /* Check if both indexes are within range */
@@ -377,7 +378,29 @@ namespace data_struct {
 
     template<typename T>
     bool LinkedList<T>::reverse() {
-        return false;
+        bool retValue = false;
+
+        if (1u < this->m_uSize) {
+            const std::size_t middle_idx = this->m_uSize / 2u;
+            std::size_t left_idx = 0u;
+            std::size_t right_idx = this->m_uSize - 1u;
+
+            while (left_idx < right_idx) {
+                this->swap_nodes(left_idx, right_idx);
+
+                left_idx++;
+                right_idx--;
+            }
+
+            retValue = true;
+        }
+        else {
+            retValue = true;
+        }
+
+
+
+        return retValue;
     }
 
     template<typename T>

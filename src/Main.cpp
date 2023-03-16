@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<data_struct::LinkedList<int>> myLinkedList;
     myLinkedList = std::make_unique<data_struct::LinkedList<int>>(data_struct::double_link);
 
-    for(std::size_t i = 16; 0 < i; i--) {
+    for(std::size_t i = 8; 0 < i; i--) {
         bool result = myLinkedList->enqueue(i * 3);
 
         if (result) {
@@ -40,6 +40,14 @@ int main(int argc, char** argv) {
     std::this_thread::sleep_for(std::chrono::milliseconds (1000 ));
 
     bool result = myLinkedList->sort();
+    if (result) {
+        DLOG(INFO) << *myLinkedList << std::endl;
+    }
+    else {
+        DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+    }
+
+    result = myLinkedList->reverse();
     if (result) {
         DLOG(INFO) << *myLinkedList << std::endl;
     }
