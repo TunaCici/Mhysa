@@ -282,6 +282,10 @@ namespace data_struct {
     bool LinkedList<T>::peek(const std::size_t& idx, T& target) {
         bool retValue = false;
 
+        if (idx == std::numeric_limits<std::size_t>::max()) {
+            throw std::invalid_argument("Possible integer overflow. Peeking at: " + std::to_string(-1));
+        }
+
         /* Check if idx is within range */
         if (this->m_uSize <= idx) {
             return retValue;
