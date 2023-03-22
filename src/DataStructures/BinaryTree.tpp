@@ -175,7 +175,9 @@ namespace data_struct {
                 temp->parent->left = std::move(temp->right);
 
                 temp->left = std::move(targetNode->left);
+                temp->left->parent = temp.get();
                 temp->right = std::move(targetNode->right);
+                temp->right->parent = temp.get();
 
                 retValue = this->transplant(targetNode, std::move(temp));
             }
