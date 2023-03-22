@@ -56,17 +56,17 @@ namespace data_struct {
         BTreeNode<T>* parent = target->parent;
         BTreeNode<T>* rawSubtree = subtree.get();
 
-        /* Target node is the left child */
-        if (target->parent && target == target->parent->left.get()) {
+        /* Target is the root */
+        if (target->parent == nullptr) {
+            this->m_pRoot = std::move(subtree);
+        }
+        /* Target node is a left child */
+        else if (target->parent && target == target->parent->left.get()) {
             target->parent->left = std::move(subtree);
         }
-        /* Target node is the right child */
+        /* Target node is a right child */
         else if (target->parent && target == target->parent->right.get()) {
             target->parent->right = std::move(subtree);
-        }
-        /* Target node is the root */
-        else {
-            this->m_pRoot = std::move(subtree);
         }
 
         /* Update the parent values */
@@ -163,7 +163,6 @@ namespace data_struct {
             /* Case c.1 */
             if (successor == targetNode->right.get()) {
                 successor->left = std::move(targetNode->left);
-                successor->left->parent = successor;
 
                 retValue = this->transplant(targetNode, std::move(targetNode->right));
             }
@@ -172,12 +171,15 @@ namespace data_struct {
                 /* Temporarily hold the successor */
                 std::unique_ptr<BTreeNode<T>> temp = std::move(successor->parent->left);
 
-                temp->parent->left = std::move(temp->right);
+                /* Update the successor's parent's left child */
+                if (temp->right) {
+                    temp->right->parent = temp->parent;
+                    temp->parent->left = std::move(temp->right);
+                }
 
+                /* Take ownership of the target's children */
                 temp->left = std::move(targetNode->left);
-                temp->left->parent = temp.get();
                 temp->right = std::move(targetNode->right);
-                temp->right->parent = temp.get();
 
                 retValue = this->transplant(targetNode, std::move(temp));
             }
