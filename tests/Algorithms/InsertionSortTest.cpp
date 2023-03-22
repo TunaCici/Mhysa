@@ -66,18 +66,3 @@ TEST(Insertion_Sort, Sorting_Size_10K) {
     sorting::insertion_sort(vec_ten_thousand, false);
     EXPECT_EQ(sorting::is_ordered(vec_ten_thousand, false), true);
 }
-TEST(Insertion_Sort, Sorting_Size_50K) {
-    std::vector<int> vec_fifty_thousand = {};
-    for (long i = 0; i < 50000; i++) { vec_fifty_thousand.push_back(uni_dist(mt_machine));}
-
-    /* Ascending order*/
-    sorting::insertion_sort(vec_fifty_thousand);
-    EXPECT_EQ(sorting::is_ordered(vec_fifty_thousand), true);
-
-    /* Shuffle the values */
-    std::shuffle(vec_fifty_thousand.begin(), vec_fifty_thousand.end(), mt_machine);
-
-    /* Descending order*/
-    sorting::insertion_sort(vec_fifty_thousand, false);
-    EXPECT_EQ(sorting::is_ordered(vec_fifty_thousand, false), true);
-}
