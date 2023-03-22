@@ -11,6 +11,7 @@
 #include "DataStructures/Stack.hpp"
 #include "DataStructures/Queue.hpp"
 #include "DataStructures/LinkedList.hpp"
+#include "DataStructures/BinaryTree.hpp"
 
 int main(int argc, char** argv) {
     int nResult = EXIT_FAILURE;
@@ -21,14 +22,16 @@ int main(int argc, char** argv) {
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    std::unique_ptr<data_struct::LinkedList<int>> myLinkedList;
-    myLinkedList = std::make_unique<data_struct::LinkedList<int>>(data_struct::double_link);
+    std::unique_ptr<data_struct::BinaryTree<int>> myBinaryTree;
+    myBinaryTree = std::make_unique<data_struct::BinaryTree<int>>();
 
-    for(std::size_t i = 8; 0 < i; i--) {
-        bool result = myLinkedList->enqueue(i * 3);
+    std::vector<int> someValues = {8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 15};
+
+    for(std::size_t i = 0; i < someValues.size(); i++) {
+        bool result = myBinaryTree->insert(someValues[i]);
 
         if (result) {
-            DLOG(INFO) << *myLinkedList << std::endl;
+            DLOG(INFO) << *myBinaryTree << std::endl;
         }
         else {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
@@ -37,22 +40,18 @@ int main(int argc, char** argv) {
         std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds (1000 ));
+    /* Remove every other value */
+    for(std::size_t i = 0; i < someValues.size(); i ++) {
+        bool result = myBinaryTree->remove(someValues[i]);
 
-    bool result = myLinkedList->sort();
-    if (result) {
-        DLOG(INFO) << *myLinkedList << std::endl;
-    }
-    else {
-        DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
-    }
+        if (result) {
+            DLOG(INFO) << *myBinaryTree << std::endl;
+        }
+        else {
+            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        }
 
-    result = myLinkedList->reverse();
-    if (result) {
-        DLOG(INFO) << *myLinkedList << std::endl;
-    }
-    else {
-        DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
     }
 
     nResult = EXIT_SUCCESS;
