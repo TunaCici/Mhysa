@@ -12,6 +12,7 @@
 #include "DataStructures/Queue.hpp"
 #include "DataStructures/LinkedList.hpp"
 #include "DataStructures/BinaryTree.hpp"
+#include "DataStructures/RedBlackTree.hpp"
 
 int main(int argc, char** argv) {
     int nResult = EXIT_FAILURE;
@@ -22,16 +23,16 @@ int main(int argc, char** argv) {
         fLB::FLAGS_logtostderr = true;
     #endif
 
-    std::unique_ptr<data_struct::BinaryTree<int>> myBinaryTree;
-    myBinaryTree = std::make_unique<data_struct::BinaryTree<int>>();
+    std::unique_ptr<data_struct::RedBlackTree<int>> myRedBlackTree;
+    myRedBlackTree = std::make_unique<data_struct::RedBlackTree<int>>();
 
-    std::vector<int> someValues = {8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 15};
+    std::vector<int> someValues = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15};
 
-    for(std::size_t i = 0; i < someValues.size(); i++) {
-        bool result = myBinaryTree->insert(someValues[i]);
+    for(int someValue : someValues) {
+        bool result = myRedBlackTree->insert(someValue);
 
         if (result) {
-            DLOG(INFO) << *myBinaryTree << std::endl;
+            DLOG(INFO) << *myRedBlackTree << std::endl;
         }
         else {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
@@ -41,11 +42,11 @@ int main(int argc, char** argv) {
     }
 
     /* Remove every other value */
-    for(std::size_t i = 0; i < someValues.size(); i ++) {
-        bool result = myBinaryTree->remove(someValues[i]);
+    for(int someValue : someValues) {
+        bool result = myRedBlackTree->remove(someValue);
 
         if (result) {
-            DLOG(INFO) << *myBinaryTree << std::endl;
+            DLOG(INFO) << *myRedBlackTree << std::endl;
         }
         else {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
