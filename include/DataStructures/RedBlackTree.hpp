@@ -35,19 +35,19 @@ namespace data_struct {
         std::size_t m_uSize{};
 
         bool create_node(const T& input, std::unique_ptr<RBTreeNode<T>>& output);
-        void transplant(std::unique_ptr<RBTreeNode<T>>& target, std::unique_ptr<RBTreeNode<T>> subtree);
+        void transplant(RBTreeNode<T>* target, std::unique_ptr<RBTreeNode<T>> subtree);
 
         void insert_fixup(std::unique_ptr<RBTreeNode<T>>& target);
         void remove_fixup(std::unique_ptr<RBTreeNode<T>>& target);
         void rotate_left(std::unique_ptr<RBTreeNode<T>>& target);
         void rotate_right(std::unique_ptr<RBTreeNode<T>>& target);
 
-        std::optional<RBTreeNode<T>&> search_node(const T& target) const noexcept;
-        std::optional<RBTreeNode<T>&> successor(const RBTreeNode<T>& target) const noexcept;
-        std::optional<RBTreeNode<T>&> predecessor(const RBTreeNode<T>& target) const noexcept;
+        RBTreeNode<T>* search_node(const T& target) const noexcept;
+        RBTreeNode<T>* successor(const RBTreeNode<T>* target = nullptr) const noexcept;
+        RBTreeNode<T>* predecessor(const RBTreeNode<T>* target = nullptr) const noexcept;
 
-        RBTreeNode<T>& min(const RBTreeNode<T>& target) const noexcept;
-        RBTreeNode<T>& max(const RBTreeNode<T>& target) const noexcept;
+        RBTreeNode<T>* min(const RBTreeNode<T>* target = nullptr) const noexcept;
+        RBTreeNode<T>* max(const RBTreeNode<T>* target = nullptr) const noexcept;
 
         std::size_t height_helper(const RBTreeNode<T>* target) const noexcept;
         void inorder_print(std::ostream& os, const RBTreeNode<T>* curr_node) const;

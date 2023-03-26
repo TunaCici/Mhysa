@@ -43,17 +43,22 @@ namespace data_struct {
     }
 
     template<typename T>
-    void RedBlackTree<T>::transplant(std::unique_ptr<RBTreeNode<T>>& target, std::unique_ptr<RBTreeNode<T>> subtree) {
+    void RedBlackTree<T>::transplant(RBTreeNode<T>* target, std::unique_ptr<RBTreeNode<T>> subtree) {
         /* Temp variables */
         RBTreeNode<T>* parent = target->parent;
         RBTreeNode<T>* rawSubtree = subtree.get();
+
+        /* Target does not exist */
+        if (target == nullptr) {
+            return;
+        }
 
         /* Target is the root */
         if (target->parent == RB_SENTINEL) {
             this->m_pRoot = std::move(subtree);
         }
         /* Target node is a left child */
-        else if (target == target->parent->left) {
+        else if (target == target->parent->left.get()) {
             target->parent->left = std::move(subtree);
         }
         /* Target node is a right child */
@@ -241,6 +246,7 @@ namespace data_struct {
                     grandParent->color = RBColor::RED;
 
                     /* Some smart pointer bs */
+                    /* TODO: Find a better way to do this */
                     auto grandGrandParent = grandParent->parent;
                     if (grandGrandParent == RB_SENTINEL) {
                         this->rotate_left(this->m_pRoot);
@@ -319,37 +325,49 @@ namespace data_struct {
     bool RedBlackTree<T>::remove(const T& target) {
         bool retValue = false;
 
-        std::optional<RBTreeNode<T>&> targetNode = this->search_node(target);
+        RBTreeNode<T>* targetNode = this->search_node(target);
+
+        /* We have 4 different cases */
+
 
         /* Target does not exist */
         if (!targetNode) {
             return retValue;
         }
 
+        /* The 'changedNode' is either removed or moved within the tree */
+        /* The 'replacedNode' is the node that moves into the place of 'changedNode' */
+        RBTreeNode<T>* changedNode = targetNode;
+        RBTreeNode<T>* replacedNode = RB_SENTINEL;
         RBColor originalColor = targetNode->color;
 
         /* Target does not have a left child (Case a | b) */
         if (targetNode->left.get() == RB_SENTINEL) {
-            retValue = this->transplant(targetNode, std::move(targetNode->right));
+            replacedNode = targetNode->right.get();
+            this->transplant(targetNode, std::move(targetNode->right));
         }
         /* Target does not have a right child (Case a | b) */
         else if (targetNode->right.get() == RB_SENTINEL) {
-            retValue = this->transplant(targetNode, std::move(targetNode->left));
+            replacedNode = targetNode->left.get();
+            this->transplant(targetNode, std::move(targetNode->left));
         }
         /* Target does have both of it's children (Case c) */
         else {
-            BTreeNode<T>* successor = this->successor(targetNode);
+            changedNode = this->successor(targetNode);
+            originalColor = changedNode->color;
+
+            /* TODO: Left here... as of 26 March 2023 - 10:03 PM */
 
             /* Case c.1 */
-            if (successor == targetNode->right.get()) {
-                successor->left = std::move(targetNode->left);
+            if (changedNode == targetNode->right.get()) {
+                changedNode->left = std::move(targetNode->left);
 
-                retValue = this->transplant(targetNode, std::move(targetNode->right));
+                 this->transplant(targetNode, std::move(targetNode->right));
             }
-                /* Case c.2 */
+            /* Case c.2 */
             else {
                 /* Temporarily hold the successor */
-                std::unique_ptr<BTreeNode<T>> temp = std::move(successor->parent->left);
+                std::unique_ptr<RBTreeNode<T>> temp = std::move(changedNode->parent->left);
 
                 /* Update the successor's parent's left child */
                 if (temp->right) {
@@ -361,15 +379,28 @@ namespace data_struct {
                 temp->left = std::move(targetNode->left);
                 temp->right = std::move(targetNode->right);
 
-                retValue = this->transplant(targetNode, std::move(temp));
+                this->transplant(targetNode, std::move(temp));
             }
         }
 
         if (originalColor == RBColor::BLACK) {
-            // this->remove_fixup(targetNode->parent->left);
+            /* Some smart pointer bs */
+            /* TODO: Find a better way to do this */
+
+            auto parent = replacedNode->parent;
+            if (parent == RB_SENTINEL) {
+                this->remove_fixup(this->m_pRoot);
+            }
+            else if (replacedNode == parent->left.get()) {
+                this->remove_fixup(replacedNode->parent->left);
+            }
+            else {
+                this->remove_fixup(parent->right);
+            }
         }
 
-        if (retValue && this->m_uSize != 0u) {
+        if (this->m_uSize != 0u) {
+            retValue = true;
             this->m_uSize--;
         }
 
@@ -377,8 +408,8 @@ namespace data_struct {
     }
 
     template<typename T>
-    std::optional<RBTreeNode<T>&> RedBlackTree<T>::search_node(const T& target) const noexcept {
-        std::optional<RBTreeNode<T>&> retValue = std::nullopt;
+    RBTreeNode<T>* RedBlackTree<T>::search_node(const T& target) const noexcept {
+        RBTreeNode<T>* retValue = nullptr;
         RBTreeNode<T>* iter = this->m_pRoot.get();
 
         /* Search for the target */
@@ -392,7 +423,7 @@ namespace data_struct {
 
         /* Found the target */
         if (iter) {
-            retValue = *iter;
+            retValue = iter;
         }
 
         return retValue;
@@ -421,58 +452,62 @@ namespace data_struct {
     }
 
     template<typename T>
-    std::optional<RBTreeNode<T>&> RedBlackTree<T>::successor(const RBTreeNode<T>& target) const noexcept {
-        std::optional<RBTreeNode<T>&> retValue = std::nullopt;
+    RBTreeNode<T>* RedBlackTree<T>::successor(const RBTreeNode<T>* target) const noexcept {
+        RBTreeNode<T>* retValue = nullptr;
+
+        if (target == nullptr) {
+            return retValue;
+        }
 
         if (target->right) {
-            retValue = this->min(target->right.get());
+            return this->min(target->right.get());
         }
-        else {
-            RBTreeNode<T>* parent = target->parent;
-            RBTreeNode<T>* iter = &target;
 
-            /* Find the first node that is the left child of its parent */
-            while (parent && iter == parent->right.get()) {
-                iter = parent;
-                parent = parent->parent;
-            }
+        retValue = target->parent;
 
-            if (parent) {
-                retValue = *parent;
-            }
+        while (retValue && target == retValue->right.get()) {
+            target = retValue;
+            retValue = retValue->parent;
         }
 
         return retValue;
     }
 
     template<typename T>
-    std::optional<RBTreeNode<T>&> RedBlackTree<T>::predecessor(const RBTreeNode<T>& target) const noexcept {
-        std::optional<RBTreeNode<T>&> retValue = std::nullopt;
+    RBTreeNode<T>* RedBlackTree<T>::predecessor(const RBTreeNode<T>* target) const noexcept {
+        RBTreeNode<T>* retValue = nullptr;
+
+        if (target == nullptr) {
+            return retValue;
+        }
 
         if (target->left) {
-            retValue = this->max(target->left.get());
+            return this->max(target->left.get());
         }
-        else {
-            RBTreeNode<T>* parent = target->parent;
-            RBTreeNode<T>* iter = &target;
 
-            /* Find the first node that is the right child of its parent */
-            while (parent && iter == parent->left.get()) {
-                iter = parent;
-                parent = parent->parent;
-            }
+        retValue = target->parent;
 
-            if (parent) {
-                retValue = *parent;
-            }
+        while (retValue && target == retValue->left.get()) {
+            target = retValue;
+            retValue = retValue->parent;
         }
 
         return retValue;
     }
 
     template<typename T>
-    RBTreeNode<T>& RedBlackTree<T>::min(const RBTreeNode<T>& target) const noexcept {
-        RBTreeNode<T>& retValue = target;
+    RBTreeNode<T>* RedBlackTree<T>::min(const RBTreeNode<T>* target) const noexcept {
+        RBTreeNode<T>* retValue = this->m_pRoot.get();
+
+        /* Start searching from the 'target' node */
+        /* If 'target' is nullptr, start searching from the root */
+        while (target && retValue != target) {
+            if (target->key < retValue->key) {
+                retValue = retValue->left.get();
+            } else {
+                retValue = retValue->right.get();
+            }
+        }
 
         /* Iterate to the leftest child */
         while (retValue && retValue->left) {
@@ -483,12 +518,22 @@ namespace data_struct {
     }
 
     template<typename T>
-    RBTreeNode<T>& RedBlackTree<T>::max(const RBTreeNode<T>& target) const noexcept {
-        RBTreeNode<T>& retValue = target;
+    RBTreeNode<T>* RedBlackTree<T>::max(const RBTreeNode<T>* target) const noexcept {
+        RBTreeNode<T>* retValue = this->m_pRoot.get();
 
-        /* Iterate to the leftest child */
-        while (retValue && retValue.right) {
-            retValue = retValue.right.get();
+        /* Start searching from the 'target' node */
+        /* If 'target' is nullptr, start searching from the root */
+        while (target && retValue != target) {
+            if (target->key < retValue->key) {
+                retValue = retValue->left.get();
+            } else {
+                retValue = retValue->right.get();
+            }
+        }
+
+        /* Iterate to the rightest child */
+        while (retValue && retValue->right) {
+            retValue = retValue->right.get();
         }
 
         return retValue;
