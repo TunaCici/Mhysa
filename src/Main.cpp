@@ -38,21 +38,7 @@ int main(int argc, char** argv) {
             DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
-    }
-
-    /* Remove every other value */
-    for(int someValue : someValues) {
-        bool result = myRedBlackTree->remove(someValue);
-
-        if (result) {
-            DLOG(INFO) << *myRedBlackTree << std::endl;
-        }
-        else {
-            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds (250 ));
+        std::this_thread::sleep_for(std::chrono::milliseconds (500 ));
     }
 
     nResult = EXIT_SUCCESS;

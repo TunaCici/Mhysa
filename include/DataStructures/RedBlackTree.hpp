@@ -6,6 +6,7 @@
 #define MHYSA_REDBLACKTREE_HPP
 
 #include <memory>
+#include <optional>
 
 /* Virtual RBTree sentinel 'node' */
 /* Note: Normally sentinel nodes are actual nodes (such as RBTreeNode) */
@@ -34,13 +35,21 @@ namespace data_struct {
         std::size_t m_uSize{};
 
         bool create_node(const T& input, std::unique_ptr<RBTreeNode<T>>& output);
-        bool transplant(RBTreeNode<T>* target, std::unique_ptr<RBTreeNode<T>> subtree);
-        bool insert_fixup(RBTreeNode<T>* target);
+        void transplant(std::unique_ptr<RBTreeNode<T>>& target, std::unique_ptr<RBTreeNode<T>> subtree);
 
-        bool rotate_left(std::unique_ptr<RBTreeNode<T>> target);
-        bool rotate_right(std::unique_ptr<RBTreeNode<T>> target);
+        void insert_fixup(std::unique_ptr<RBTreeNode<T>>& target);
+        void remove_fixup(std::unique_ptr<RBTreeNode<T>>& target);
+        void rotate_left(std::unique_ptr<RBTreeNode<T>>& target);
+        void rotate_right(std::unique_ptr<RBTreeNode<T>>& target);
 
-        std::size_t height_helper(const RBTreeNode<T>* target);
+        std::optional<RBTreeNode<T>&> search_node(const T& target) const noexcept;
+        std::optional<RBTreeNode<T>&> successor(const RBTreeNode<T>& target) const noexcept;
+        std::optional<RBTreeNode<T>&> predecessor(const RBTreeNode<T>& target) const noexcept;
+
+        RBTreeNode<T>& min(const RBTreeNode<T>& target) const noexcept;
+        RBTreeNode<T>& max(const RBTreeNode<T>& target) const noexcept;
+
+        std::size_t height_helper(const RBTreeNode<T>* target) const noexcept;
         void inorder_print(std::ostream& os, const RBTreeNode<T>* curr_node) const;
         void preorder_print( std::ostream& os, const RBTreeNode<T>* curr_node) const;
     public:
@@ -52,16 +61,10 @@ namespace data_struct {
 
         bool insert(const T& input);
         bool remove(const T& target);
+        std::optional<T> search(const T& target) const noexcept;
 
-        RBTreeNode<T>* search(const T& target);
-        RBTreeNode<T>* successor(const RBTreeNode<T>* target);
-        RBTreeNode<T>* predecessor(const RBTreeNode<T>* target);
-
-        RBTreeNode<T>* min(const RBTreeNode<T>* target = nullptr);
-        RBTreeNode<T>* max(const RBTreeNode<T>* target = nullptr);
-
-        std::size_t size();
-        std::size_t height(const RBTreeNode<T>* target = nullptr);
+        std::size_t size() const noexcept;
+        std::size_t height(const RBTreeNode<T>* target = nullptr) const noexcept;
 
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os, const RedBlackTree<U>& obj);
