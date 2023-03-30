@@ -34,8 +34,8 @@ namespace data_struct {
             this->m_uSize++;
         }
         catch (const std::exception& e) {
-            /* TODO: Handle std::bad_alloc and etc. */
-            /* Do nothing for now */
+            std::cerr << "Failed to create a new node! " << e.what() << std::endl;
+            throw;
         }
 
         return output;
@@ -223,10 +223,22 @@ namespace data_struct {
 
     template<typename T>
     std::unique_ptr<RBTreeNode<T>> RedBlackTree<T>::remove_helper(std::unique_ptr<RBTreeNode<T>> curr_node, const T& target) {
+        /* Current node is 'nullptr' */
+        if (!curr_node) {
+            if (0u < this->m_uSize) {
+                this->m_uSize--;
+            }
+
+            return nullptr;
+        }
+
         /* Target is less than the current node -> go left */
         if (target < curr_node->key) {
-            if(!this->is_red(curr_node->left.get()) and !this->is_red(curr_node->left->left.get())) {
-                curr_node = this->move_red_left(std::move(curr_node));
+            if(!this->is_red(curr_node->left.get())) {
+                /* Do not forget to if the curr_node->left is nullptr */
+                if (curr_node->left and !this->is_red(curr_node->left->left.get())) {
+                    curr_node = this->move_red_left(std::move(curr_node));
+                }
             }
 
             curr_node->left = this->remove_helper(std::move(curr_node->left), target);
@@ -242,8 +254,11 @@ namespace data_struct {
                 return nullptr;
             }
 
-            if (!this->is_red(curr_node->right.get()) and !this->is_red(curr_node->right->left.get())) {
-                curr_node = this->move_red_right(std::move(curr_node));
+            if (!this->is_red(curr_node->right.get())) {
+                /* Do not forget to if the curr_node->right is nullptr */
+                if (curr_node->right and !this->is_red(curr_node->right->left.get())) {
+                    curr_node = this->move_red_right(std::move(curr_node));
+                }
             }
 
             if (target == curr_node->key) {
@@ -325,13 +340,13 @@ namespace data_struct {
     }
 
     template<typename T>
-    std::optional<T> RedBlackTree<T>::search(const T& target) const noexcept {
-        std::optional<T> retValue{};
+    const T* RedBlackTree<T>::search(const T& target) const noexcept {
+        const T* retValue = nullptr;
         RBTreeNode<T>* iter = this->m_pRoot.get();
 
         /* Search for the target */
-        while (iter && target != retValue->key) {
-            if (target < retValue->key) {
+        while (iter && target != iter->key) {
+            if (target < iter->key) {
                 iter = iter->left.get();
             } else {
                 iter = iter->right.get();
@@ -340,7 +355,7 @@ namespace data_struct {
 
         /* Found the target */
         if (iter) {
-            retValue = iter->key;
+            retValue = &iter->key;
         }
 
         return retValue;

@@ -57,7 +57,7 @@ namespace data_struct {
         bool insert(const T& input);
         bool remove(const T& target);
         bool remove_min();
-        std::optional<T> search(const T& target) const noexcept;
+        const T* search(const T& target) const noexcept;
 
         std::size_t size() const noexcept;
         std::size_t height(const RBTreeNode<T>* target = nullptr) const noexcept;
