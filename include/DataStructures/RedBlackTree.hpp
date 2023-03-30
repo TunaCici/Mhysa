@@ -2,11 +2,17 @@
 // Created by Tuna Cici on 23.03.2023.
 //
 
+//
+// Red Black Tree Implementation in C++20 using std::unique_ptr
+//
+// Based on the Robert Sedgewick's Left Leaning Red Black Tree
+// URL: https://sedgewick.io/wp-content/themes/sedgewick/papers/2008LLRB.pdf
+//
+
 #ifndef MHYSA_REDBLACKTREE_HPP
 #define MHYSA_REDBLACKTREE_HPP
 
 #include <memory>
-#include <optional>
 
 namespace data_struct {
     enum class RBColor {RED, BLACK};
@@ -25,6 +31,7 @@ namespace data_struct {
     private:
         std::unique_ptr<RBTreeNode<T>> m_pRoot{};
         std::size_t m_uSize{};
+
 
         std::unique_ptr<RBTreeNode<T>> create_node(const T& input);
 
@@ -56,7 +63,6 @@ namespace data_struct {
 
         bool insert(const T& input);
         bool remove(const T& target);
-        bool remove_min();
         const T* search(const T& target) const noexcept;
 
         std::size_t size() const noexcept;

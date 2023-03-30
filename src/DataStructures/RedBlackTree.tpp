@@ -276,26 +276,6 @@ namespace data_struct {
     }
 
     template<typename T>
-    bool RedBlackTree<T>::remove_min() {
-        bool retValue = false;
-
-        auto previousSize = this->m_uSize;
-
-        this->m_pRoot = this->remove_min(std::move(this->m_pRoot));
-        if (this->m_pRoot) {
-            this->m_pRoot->color = RBColor::BLACK;
-        }
-
-        auto newSize = this->m_uSize;
-
-        if (newSize < previousSize) {
-            retValue = true;
-        }
-
-        return retValue;
-    }
-
-    template<typename T>
     bool RedBlackTree<T>::remove(const T& target) {
         bool retValue = false;
 
