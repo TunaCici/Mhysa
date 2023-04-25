@@ -17,43 +17,24 @@
 int main(int argc, char** argv) {
     int nResult = EXIT_FAILURE;
 
-    // Initialize logging
-    #ifdef DEBUG
-        google::InitGoogleLogging(argv[0]);
-        fLB::FLAGS_logtostderr = true;
-    #endif
+#ifdef DEBUG
+    /* Init Google Logging */
+    google::InitGoogleLogging(argv[0]);
+    fLB::FLAGS_logtostderr = true;
+#endif
 
-    std::unique_ptr<data_struct::RedBlackTree<int>> myRedBlackTree;
-    myRedBlackTree = std::make_unique<data_struct::RedBlackTree<int>>();
+#ifdef EXPERIMENTAL
+    /* Only active when building for target Mhysa_Experimental */
 
-    std::vector<int> someValues = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15};
+    /* Defined in src/Experimental/Fibonacci.cpp */
+    extern unsigned int fib(const unsigned int &n);
 
-    for(int someValue : someValues) {
-        bool result = myRedBlackTree->insert(someValue);
-
-        if (result) {
-            DLOG(INFO) << *myRedBlackTree << std::endl;
-        }
-        else {
-            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds (500 ));
+    for (auto i = 0; i < 32; i++)
+    {
+        DLOG(INFO) << "fib(" << i << ") is " << fib(i);
     }
 
-    for (int someValue : someValues) {
-        bool result = myRedBlackTree->remove(someValue);
-
-        if (result) {
-            DLOG(INFO) << *myRedBlackTree << std::endl;
-        }
-        else {
-            DLOG(WARNING) << "Oh no... Result: " << result << std::endl;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds (500 ));
-    }
-
+#endif
 
     nResult = EXIT_SUCCESS;
     return nResult;

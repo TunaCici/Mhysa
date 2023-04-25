@@ -1,5 +1,5 @@
-#ifndef SORTING_HPP
-#define SORTING_HPP
+#ifndef MHYSA_SORTING_HPP
+#define MHYSA_SORTING_HPP
 
 #include <vector>
 
