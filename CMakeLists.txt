@@ -24,40 +24,34 @@ add_subdirectory(lib/glog)
 add_subdirectory(lib/googletest)
 
 # Targets
-add_executable(Debug_AARCH64
+add_executable(Mhysa_Experimental
+        src/Main.cpp
+        src/Experimental/Fibonacci.cpp)
+target_link_libraries(Mhysa_Experimental PRIVATE glog::glog)
+
+add_executable(Mhysa_Debug
         src/Main.cpp
         src/Algorithms/Sorting.cpp
         src/Formatting/NumberFormatting.cpp)
-target_link_libraries(Debug_AARCH64 PRIVATE glog::glog)
+target_link_libraries(Mhysa_Debug PRIVATE glog::glog)
 
-add_executable(Release_AARCH64
+add_executable(Mhysa_Release
         src/Main.cpp
         src/Algorithms/Sorting.cpp
         src/Formatting/NumberFormatting.cpp)
-target_link_libraries(Release_AARCH64 PRIVATE glog::glog)
+target_link_libraries(Mhysa_Release PRIVATE glog::glog)
 
-# Compiler flags for Debug
+# Compiler flags for Debug & Experimental
 if(MSVC)
-    target_compile_options(
-        Debug_AARCH64
-        PRIVATE
-        -O0 -DDEBUG -Wall -g
-    )
+    target_compile_options(Mhysa_Debug PRIVATE -O0 -DDEBUG -Wall -g)
+    target_compile_options(Mhysa_Experimental PRIVATE -O0 -DDEBUG -DEXPERIMENTAL -Wall -g)
 else()
-    target_compile_options(
-        Debug_AARCH64
-        PRIVATE
-        -O0 -DDEBUG -Wall -Wextra -Wpedantic -g
-    )
+    target_compile_options(Mhysa_Debug PRIVATE -O0 -DDEBUG -Wall -Wextra -Wpedantic -g)
+    target_compile_options(Mhysa_Experimental PRIVATE -O0 -DDEBUG -DEXPERIMENTAL -Wall -Wextra -Wpedantic -g)
 endif()
 
 # Compiler flags for Release
-target_compile_options(
-    Release_AARCH64
-    PRIVATE
-    -O3 -DNDEBUG -fomit-frame-pointer -flto
-)
-
+target_compile_options(Mhysa_Release PRIVATE -O3 -DNDEBUG -fomit-frame-pointer -flto)
 
 # Test settings
 enable_testing()
@@ -71,7 +65,9 @@ add_executable(AllTest_AARCH64
         tests/Algorithms/QuickSortTest.cpp
         tests/DataStructures/StackTest.cpp
         tests/DataStructures/QueueTest.cpp
-        tests/DataStructures/LinkedListTest.cpp tests/DataStructures/BinaryTreeTest.cpp tests/DataStructures/RedBlackTreeTest.cpp)
+        tests/DataStructures/LinkedListTest.cpp
+        tests/DataStructures/BinaryTreeTest.cpp
+        tests/DataStructures/RedBlackTreeTest.cpp)
 target_link_libraries(AllTest_AARCH64 PRIVATE GTest::gtest_main)
 
 include(GoogleTest)
