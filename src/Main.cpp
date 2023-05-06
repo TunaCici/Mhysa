@@ -34,6 +34,16 @@ int main(int argc, char** argv) {
         DLOG(INFO) << "fib(" << i << ") is " << fib(i);
     }
 
+    /* Defined in src/Experimental/CoinChange.cpp */
+    unsigned int coin_change(const std::vector<unsigned short> &banknotes, const int &target);
+
+    const std::vector<unsigned short> banknotes = {1u, 2u, 5u, 10u, 20u, 50u, 100u};
+
+    for (auto i = 0; i < 32; i++)
+    {
+        DLOG(INFO) << "coin_change(" << i * 10u << ") is " << coin_change(banknotes, i * 10u);
+    }
+
 #endif
 
     nResult = EXIT_SUCCESS;
