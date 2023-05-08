@@ -27,7 +27,8 @@ add_subdirectory(lib/googletest)
 add_executable(Mhysa_Experimental
         src/Main.cpp
         src/Experimental/Fibonacci.cpp
-        src/Experimental/CoinChange.cpp)
+        src/Experimental/CoinChange.cpp
+        src/Experimental/RodCutting.cpp)
 target_link_libraries(Mhysa_Experimental PRIVATE glog::glog)
 
 add_executable(Mhysa_Debug
