@@ -9,11 +9,10 @@
 unsigned int coin_change(
         const std::vector<unsigned short> &banknotes, const int &target);
 
-unsigned int coin_change_helper(
+static unsigned int coin_change_helper(
         std::vector<unsigned int> &cache, const std::vector<unsigned short> &banknotes, const int &target);
 
-unsigned int coin_change(const std::vector<unsigned short> &banknotes, const int &target)
-{
+unsigned int coin_change(const std::vector<unsigned short> &banknotes, const int &target) {
     static std::vector<unsigned int> cache{};
 
     /* Cache size is static (no need for dynamic) */
@@ -28,9 +27,8 @@ unsigned int coin_change(const std::vector<unsigned short> &banknotes, const int
     return ret_value;
 }
 
-unsigned int
-coin_change_helper(std::vector<unsigned int> &cache, const std::vector<unsigned short> &banknotes, const int &target)
-{
+static unsigned int
+coin_change_helper(std::vector<unsigned int> &cache, const std::vector<unsigned short> &banknotes, const int &target) {
     /* Termination cases */
     if (target == 0u) return 0u;
     else if (target < 0) return std::numeric_limits<unsigned int>::max() - 1;

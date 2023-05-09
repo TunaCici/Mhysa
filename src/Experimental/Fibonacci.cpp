@@ -6,11 +6,11 @@
 
 /* Calculates fibonacci(n) using memoization */
 unsigned int fib(const unsigned int &n);
+
 static unsigned int fib_helper(std::vector<unsigned int> &cache, const unsigned int &n);
 
 /* Implementation */
-unsigned int fib(const unsigned int &n)
-{
+unsigned int fib(const unsigned int &n) {
     /* The first two values [0] [1] are 1 by definition */
     static std::vector<unsigned int> cache = {1u, 1u};
 
@@ -19,8 +19,7 @@ unsigned int fib(const unsigned int &n)
     else if (n == 1u or n == 2u) return 1u;
 
     /* Increase cache size (this is stupid but nvm) */
-    if (cache.size() < n)
-    {
+    if (cache.size() < n) {
         cache.reserve(n * 2u);
     }
 
@@ -30,15 +29,14 @@ unsigned int fib(const unsigned int &n)
 
     return ret_value;
 }
-static unsigned int fib_helper(std::vector<unsigned int> &cache, const unsigned int &n)
-{
+
+static unsigned int fib_helper(std::vector<unsigned int> &cache, const unsigned int &n) {
     /* Termination cases */
     if (n == 0u) return 0u;
     else if (n == 1u or n == 2u) return 1u;
 
     /* Check if exist in vec? (cache hit) */
-    if (cache[n] != 0u)
-    {
+    if (cache[n] != 0u) {
         return cache[n];
     }
 
