@@ -53,6 +53,12 @@ int main(int argc, char** argv) {
     {
         DLOG(INFO) << "cut_rod(" << i << ") is " << cut_rod(prices, i);
     }
+
+    /* Defined in src/Experimental/BasicVirtualATS.cpp */
+    extern std::tuple<std::uint64_t, std::uint64_t> translate_64(const std::uint64_t &virt_addr);
+    auto [p, d] = translate_64(0x00000000A35610A7);
+
+    DLOG(INFO) << std::hex << "p: 0x" << p << " d: 0x" << d;
 #endif
 
     nResult = EXIT_SUCCESS;
