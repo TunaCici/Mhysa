@@ -5,6 +5,7 @@ project(Mhysa VERSION 0.2.0)
 
 # CMake Output
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Language Standard
 set(CMAKE_CXX_STANDARD 20)
