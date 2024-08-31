@@ -7,15 +7,13 @@
 PKG_MGR="UNKNOWN"
 
 packages="\
-    exa \
-    httpie \
+    eza \
     vim \
     neovim \
     zsh \
     zsh-syntax-highlighting \
     zsh-autosuggestions \
 "
-
 
 function print_msg {
     local msg="$1"
@@ -74,11 +72,6 @@ function update_pkg_lst {
 }
 
 function install_pkg {
-    if [ -x "$(command -v "$1")" ]; then
-        print_msg "$1 already installed." "x"
-        return
-    fi
-
     if [ "$PKG_MGR" == "apt" ]; then
         sudo apt install "$1" -y
     elif [ "$PKG_MGR" == "pacman" ]; then
@@ -151,9 +144,7 @@ print_msg "Package lists updated." "x"
 
 # 3. Install packages.
 print_msg "Installing packages..." "*"
-for i in $packages; do
-    install_pkg "$i"
-done
+install_pkg "$packages"
 
 # 4. Test packages.
 verify_cmd exa
