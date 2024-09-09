@@ -22,9 +22,13 @@ int main(int argc, char *argv[]) {
     // list of general seL4 object size_bits
     seL4_Word sizes[] = {seL4_TCBBits, seL4_EndpointBits, seL4_NotificationBits};
 
-    // TODO work out what size object we need to create to be able to create all of the objects
-    // listed above. Remember that sizes are in bits, that is, the exponents of powers of two.
-    seL4_Word untyped_size_bits = 0;
+    /*
+     * BIT(sizes[idx]) gives me an object's size in power-of-two bytes
+     * I add them all and find the total required size in bytes
+     * Then I convert bytes to bits via LOG_BASE_2()
+     */
+    seL4_Word untyped_size_bits =
+        LOG_BASE_2((BIT(sizes[0]) + BIT(sizes[1]) + BIT(sizes[2])) - 1) + 1;
     seL4_CPtr parent_untyped = 0;
     seL4_CPtr child_untyped = info->empty.start;
 
@@ -50,7 +54,19 @@ int main(int argc, char *argv[]) {
 
     // use the slot after child_untyped for the new TCB cap:
     seL4_CPtr child_tcb = child_untyped + 1;
-    /* TODO create a TCB in CSlot child_tcb */
+
+    /*
+     * Created a TCBObject on the child_untyped
+     */
+    error = seL4_Untyped_Retype(child_untyped,
+                                seL4_TCBObject,
+                                seL4_TCBBits,
+                                seL4_CapInitThreadCNode,
+                                0,
+                                0,
+                                child_tcb,
+                                1);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to create TCB object");
 
     // try to set the TCB priority
     error = seL4_TCB_SetPriority(child_tcb, seL4_CapInitThreadTCB, 10);
@@ -58,7 +74,19 @@ int main(int argc, char *argv[]) {
 
     // use the slot after child_tcb for the new endpoint cap:
     seL4_CPtr child_ep = child_tcb + 1;
-    /* TODO create an endpoint in CSlot child_ep */
+
+    /*
+     * Created an EndpointObject on the child_untyped
+     */
+    error = seL4_Untyped_Retype(child_untyped,
+                                seL4_EndpointObject,
+                                seL4_EndpointBits,
+                                seL4_CapInitThreadCNode,
+                                0,
+                                0,
+                                child_ep,
+                                1);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to create Endpoint object");
 
     // identify the type of child_ep
     uint32_t cap_id = seL4_DebugCapIdentify(child_ep);
@@ -66,13 +94,33 @@ int main(int argc, char *argv[]) {
 
     // use the slot after child_ep for the new notification cap:
     seL4_CPtr child_ntfn = child_ep + 1;
-    // TODO create a notification object in CSlot child_ntfn
+
+    /*
+     * Created a NotificationObject on the child_untyped
+     */
+    error = seL4_Untyped_Retype(child_untyped,
+                                seL4_NotificationObject,
+                                seL4_NotificationBits,
+                                seL4_CapInitThreadCNode,
+                                0,
+                                0,
+                                child_ntfn,
+                                1);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to create Notification object");
 
     // try to use child_ntfn
     error = seL4_TCB_BindNotification(child_tcb, child_ntfn);
     ZF_LOGF_IF(error != seL4_NoError, "Failed to bind notification.");
 
-    // TODO revoke the child untyped
+    /*
+     * Revoked the child_untyped capability
+     * This is interesting, because I thought parent_untyped was the _service
+     * But no! service is the root CNode at in the CSpace
+     * So parent_untyped is not even a CNode, it's just a capability
+     * That's why I had to use seL4_CapInitThreadCNode as the _service
+     */
+    error = seL4_CNode_Revoke(seL4_CapInitThreadCNode, child_untyped, seL4_WordBits);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to revoke child_untyped.");
 
     // allocate the whole child_untyped as endpoints
     // Remember the sizes are exponents, so this computes 2^untyped_size_bits / 2^seL4_EndpointBits:
