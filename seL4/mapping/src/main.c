@@ -20,11 +20,19 @@ int main(int argc, char *argv[]) {
 
     /* map a PDPT at TEST_VADDR */
     error = seL4_X86_PDPT_Map(pdpt, seL4_CapInitThreadVSpace, TEST_VADDR, seL4_X86_Default_VMAttributes);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to map PDPT");
 
-    // TODO map a page directory object
+    /*
+     * ARM equvialent: L1 table
+     */
+    error = seL4_X86_PageDirectory_Map(pd, seL4_CapInitThreadVSpace, TEST_VADDR, seL4_X86_Default_VMAttributes);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to map page directory");
 
-    // TODO map a page table object
-
+    /*
+     * ARM equvialent: L2 table 
+     */
+    error = seL4_X86_PageTable_Map(pt, seL4_CapInitThreadVSpace, TEST_VADDR, seL4_X86_Default_VMAttributes);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to map page table");
 
     /* map a read-only page at TEST_VADDR */
     error = seL4_X86_Page_Map(frame, seL4_CapInitThreadVSpace, TEST_VADDR, seL4_CanRead, seL4_X86_Default_VMAttributes);
@@ -37,7 +45,11 @@ int main(int argc, char *argv[]) {
     printf("Read x: %lu\n", *x);
 
 
-    // TODO remap the page
+    /*
+     * This is so simple and I love it
+     */
+    error = seL4_X86_Page_Map(frame, seL4_CapInitThreadVSpace, TEST_VADDR, seL4_ReadWrite, seL4_X86_Default_VMAttributes);
+    ZF_LOGF_IF(error != seL4_NoError, "Failed to remap page");
 
     /* write to the page we mapped */
     printf("Set x to 5\n");
