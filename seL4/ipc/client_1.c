@@ -32,5 +32,9 @@ int main(int c, char *argv[]) {
         info = seL4_MessageInfo_new(0, 0, 0, j);
         seL4_Call(badged_endpoint, info);
     }
+
+    /* Keep the thread running, otherwise we get a fault error. Why? IDK... */
+    while(1) { }
+
     return 0;
 }
