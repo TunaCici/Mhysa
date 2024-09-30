@@ -43,7 +43,23 @@ int main(int c, char *argv[]) {
                                seL4_AllRights, seL4_ARCH_Default_VMAttributes);
     ZF_LOGF_IFERR(error, "Failed to map frame");
     
-    // TODO share buf2_frame_cap with producer_2
+    /*
+     * This is what the above 'extern' variables represent:
+     * buf_1_frame_cap: original capability to buf_1
+     * buf_2_frame_cap: original capability to buf_2
+     * mapping_1: copied capability to buf_1
+     * mapping_2: copied capability to buf_2
+     *
+     * both mapping capabilities are then mapped into producer's vspace
+     */
+    error = seL4_CNode_Copy(cnode, mapping_2, seL4_WordBits,
+                            cnode, buf2_frame_cap, seL4_WordBits, seL4_AllRights);
+    ZF_LOGF_IFERR(error, "Failed to copy cap");
+
+    error = seL4_ARCH_Page_Map(mapping_2, producer_2_vspace, BUF_VADDR,
+                               seL4_AllRights, seL4_ARCH_Default_VMAttributes);
+    ZF_LOGF_IFERR(error, "Failed to map frame");
+    
 
     /* send IPCs with the buffer address to both producers */
     seL4_SetMR(0, BUF_VADDR);
@@ -58,17 +74,31 @@ int main(int c, char *argv[]) {
     *buf1 = 0;
     *buf2 = 0;
 
+    /*
+     * Sending signals is super straightforward 
+     */
+    seL4_Signal(buf1_empty);
+    seL4_Signal(buf2_empty);
     
-    // TODO signal both producers
     printf("Waiting for producer\n");
     for (int i = 0; i < 10; i++) {
         seL4_Wait(full, &badge);
         printf("Got badge: %lx\n", badge);
-        
-    // TODO, use the badge to check which producer has signalled you, and signal it back. Note that you 
-    // may recieve more than 1 signal at a time.
-   }
+    
+        // 1st bit is set by to producer_1
+        if (badge & (1 << 0)) {
+            printf("Signal from producer_1\n");
+            seL4_Signal(buf1_empty);
+        }
+
+        // 2nd bit is set by to producer_2
+        if (badge & (1 << 1)) {
+            printf("Signal from producer_2\n");
+            seL4_Signal(buf2_empty);
+        }
+    }
 
     printf("Success!\n");
-    return 0;
+    while (1) { }
+    // return 0;
 }
