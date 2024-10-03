@@ -62,10 +62,24 @@ int main(void) {
     timer_drv_t timer_drv = {0};
 
     
-    /* TODO invoke irq_control to put the interrupt for TTC0_TIMER1_IRQ in
-       cslot irq_handler (depth is seL4_WordBits) */
+
+    /*
+     * irq_control: is basicaly a collection of all irq_handlers given to root
+     * TTC0_TIMER1_IRQ: is the interrupt number we want to get
+     * irq_handler: is the cslot of the received interrupt handler
+     * 
+     * I like this way of managing inital interrupts. Just collect them together
+     * in irq_control and then give it to the root task to manage the rest
+     */
+    error = seL4_IRQControl_Get(irq_control, TTC0_TIMER1_IRQ, cnode, irq_handler, seL4_WordBits);
+    ZF_LOGF_IF(error, "Failed to get TTC0_TIMER1_IRQ from irq_control");
     
-     /* TODO set ntfn as the notification for irq_handler */
+
+    /*
+     * Now we simply register the irq_handler to a notfication object
+     */
+    error = seL4_IRQHandler_SetNotification(irq_handler, ntfn);
+    ZF_LOGF_IF(error, "Failed to register irq_handler to ntfn");
 
     /* set up the timer driver */
     int timer_err = timer_init(&timer_drv, DEFAULT_TIMER_ID, (void *) timer_vaddr);
@@ -91,7 +105,11 @@ int main(void) {
             printf("Tick\n");
         }
         
-        /* TODO ack the interrupt */
+        /*
+         * acknowledging an interrupts (and implicitly unmasking it) is pretty
+         * straightforward as well. I am loving this
+         */
+        seL4_IRQHandler_Ack(irq_handler);
 
         count++;
         if (count == 1000 * msg) {
