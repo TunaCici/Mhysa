@@ -80,7 +80,6 @@ void string_sort(char** arr,const int len,int (*cmp_func)(const char* a, const c
         return;
     }
 
-    char *tmp = (char*) calloc(1024, sizeof(char));
     // Since len <= 50 I can use a simple bubble-sort algorithm
     for (int i = 0; i < len; i++) {
         for (int j = i + 1; j < len; j++) {
@@ -93,8 +92,6 @@ void string_sort(char** arr,const int len,int (*cmp_func)(const char* a, const c
             }
         }
     }
-
-    free(tmp);
 }
 
 
