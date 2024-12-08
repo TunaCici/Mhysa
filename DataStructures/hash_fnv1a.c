@@ -27,12 +27,16 @@ typedef struct hash_ll
 
 /* meta-data */
 static hash_ll **hash_table = NULL;
+static hash_ll **hash_table_tmp = NULL;
 static size_t hash_table_size = 0;
-static size_t hash_table_buckets = 32;
+static size_t hash_table_buckets = 0;
 static int hash_table_lf = 0; // load factor percentage (%)
 
-static const int hash_table_lf_limit = 75;
-static const int hash_table_gf = 50; // growth factor percentage(%)
+static const int hash_table_min_buckets = 8;
+static const int hash_table_lf_lower_limit = 25;
+static const int hash_table_lf_upper_limit = 75;
+
+static const int hash_table_gf = 100; // growth factor percentage(%)
 
 static const uint64_t fnv_prime = 0x00000100000001B3;
 static const uint64_t fnv_offset_basis = 0xCBF29CE484222325;
@@ -40,6 +44,9 @@ static const uint64_t fnv_offset_basis = 0xCBF29CE484222325;
 int hash_insert(const char *key, uint64_t value);
 int hash_search(const char *key, uint64_t *res);
 int hash_delete(const char *key);
+
+void hash_init();
+void hash_maintain();
 
 static hash_ll *hash_ll_find(hash_ll *list, const char *key)
 {
@@ -92,7 +99,71 @@ void hash_init()
                 return;
         }
 
+        hash_table_buckets = hash_table_min_buckets;
         hash_table = (hash_ll**) calloc(hash_table_buckets, sizeof(hash_ll*));
+}
+
+void hash_maintain()
+{
+        if (hash_table_tmp) {
+                return;
+        }
+
+        hash_table_lf = (hash_table_size * 100) / hash_table_buckets;
+
+        size_t new_buckets = hash_table_buckets;
+        size_t change = (hash_table_buckets * hash_table_gf) / 100;
+
+        if (hash_table_lf_upper_limit < hash_table_lf) {
+                new_buckets = hash_table_buckets + change;
+        } else if (hash_table_lf < hash_table_lf_lower_limit) {
+                new_buckets = hash_table_buckets - change;
+        } else {
+                return;
+        }
+
+        if (new_buckets < hash_table_min_buckets) {
+                return;
+        }
+
+        if (new_buckets == hash_table_buckets) {
+                return;
+        }
+
+        // save the old table
+        hash_table_tmp = hash_table;
+        size_t hash_table_tmp_buckets = hash_table_buckets;
+
+        // resize and reset
+        hash_table = (hash_ll**) calloc(new_buckets, sizeof(hash_ll*));
+        hash_table_size = 0;
+        hash_table_buckets = new_buckets;
+
+        // rehashing
+        for (int i = 0; i < hash_table_tmp_buckets; i++) {
+                hash_ll *iter = hash_table_tmp[i];
+
+                while (iter) {
+                        hash_insert(iter->key, iter->value);
+                        iter = iter->next;
+                }
+        }
+
+        hash_table_lf = (hash_table_size * 100) / hash_table_buckets;
+
+        // free the old table
+        for (int i = 0; i < hash_table_tmp_buckets; i++) {
+                hash_ll *iter = hash_table_tmp[i];
+
+                while (iter) {
+                        hash_ll *to_be_freed = iter;
+                        iter = iter->next;
+
+                        free(to_be_freed);
+                }
+        }
+        free(hash_table_tmp);
+        hash_table_tmp = NULL;
 }
 
 int hash_insert(const char *key, uint64_t value)
@@ -127,12 +198,7 @@ int hash_insert(const char *key, uint64_t value)
                 hash_table_size++;
         }
 
-        // maintain the table
-        hash_table_lf = (hash_table_size * 100) / hash_table_buckets;
-
-        if (hash_table_lf_limit < hash_table_lf) {
-                printf("resize\n");
-        }
+        hash_maintain();
 
         return 0;
 }
@@ -159,20 +225,45 @@ int hash_search(const char *key, uint64_t *res)
 
 int hash_delete(const char *key)
 {
-        return 0;
-}
-
-void try_to_insert(const char *key, uint64_t value)
-{
-        if (hash_insert(key, value)) {
-                fprintf(stderr, "faled to insert\n");
+        if (!key) {
+                return -1;
         }
+
+        size_t bucket = hash_bucket(key);
+        hash_ll *found = hash_ll_find(hash_table[bucket], key);
+
+        if (!found) {
+                return -1;
+        }
+
+        // check if head
+        if (hash_table[bucket] == found) {
+                hash_table[bucket] = found->next;
+        }
+
+        if (found->prev) {
+                found->prev->next = found->next;
+        }
+
+        if (found->next) {
+                found->next->prev = found->prev;
+        }
+
+        if (hash_table_size) {
+                hash_table_size--;
+        }
+
+        free(found);
+
+        hash_maintain();
+
+        return 0;
 }
 
 void print_hash_table()
 {
         for (int i = 0; i < hash_table_buckets; i++) {
-                printf("hash_table_[%d] ", i);
+                printf("[%d] ", i);
 
                 hash_ll *iter = hash_table[i];
                 while (iter) {
@@ -182,8 +273,74 @@ void print_hash_table()
 
                 printf("NULL\n");
         }
+        
+        printf(
+                "\n"
+                "size: %lu\n"
+                "buckets: %lu\n"
+                "load factor: %d\n",
+                hash_table_size, hash_table_buckets, hash_table_lf
+        );
+}
 
-        printf("load factor: %d\n", hash_table_lf);
+void handle_insert(const char *line)
+{
+        char key[HASH_LL_KEY_SIZE];
+        uint64_t value;
+
+        if (sscanf(line, "%7s %llu", key, &value) == 2) {
+                if (hash_insert(key, value)) {
+                        fprintf(stderr, "failed to insert\n");
+                }
+        } else {
+                fprintf(stderr, "malformed line: %s\n", line);
+        }
+}
+
+void handle_delete(const char *line)
+{
+        char key[HASH_LL_KEY_SIZE];
+
+        if (sscanf(line, "%7s", key) == 1) {
+                if (hash_delete(key)) {
+                        fprintf(stderr, "failed to delete\n");
+                }
+        } else {
+                fprintf(stderr, "malformed line: %s\n", line);
+        }
+}
+
+void handle_search(const char *line)
+{
+        char key[HASH_LL_KEY_SIZE];
+        uint64_t value = 0;
+
+        if (sscanf(line, "%7s", key) == 1) {
+                if (hash_search(key, &value)) {
+                        fprintf(stderr, "\"%s\" does not exist\n", key);
+                } else {
+                        printf("\"%s\": %llu\n", key, value);
+                }
+        } else {
+                fprintf(stderr, "malformed line: %s\n", line);
+        }
+}
+
+void handle_help()
+{
+        printf(
+                "available commands:\n"
+                "  insert <char[7]> <uint64_t> - insert an item\n"
+                "  delete <char[7]>            - delete an item\n"
+                "  search <char[7]>            - search for an item\n"
+                "  help                        - show this help message\n"
+                "  exit                        - exit the program\n"
+        );
+}
+
+void handle_print()
+{
+        print_hash_table();
 }
 
 int main(int argc, char **argv)
@@ -191,24 +348,28 @@ int main(int argc, char **argv)
         hash_init();
 
         char line[32];
-        char key[HASH_LL_KEY_SIZE];
-        uint64_t value;
 
+        printf("(%s) ", __FILE_NAME__);
         while (fgets(line, sizeof(line), stdin)) {
                 line[strcspn(line, "\n")] = '\0';
 
-                if (sscanf(line, "%7s %llu", key, &value) == 2) {
-                        try_to_insert(key, value);
+                if (strstr(line, "insert")) {
+                        handle_insert(line + strlen("insert"));
+                } else if (strstr(line, "delete")) {
+                        handle_delete(line + strlen("delete"));
+                } else if (strstr(line, "search")) {
+                        handle_search(line + strlen("search"));
+                } else if (strstr(line, "print")) {
+                        handle_print();
+                } else if (strstr(line, "help")) {
+                        handle_help();
+                } else if (strstr(line, "exit")) {
+                        return EXIT_SUCCESS;
                 } else {
-                        fprintf(stderr, "malformed line: %s\n", line);
+                        fprintf(stderr, "unkown command: %s\n", line);
                 }
-        }
 
-        uint64_t res = 0;
-        if (hash_search("banana", &res) == 0) {
-                printf("key exists: %llu\n", res);
-        } else {
-                printf("key doesn't exist\n");
+                printf("(%s) ", __FILE_NAME__);
         }
 
         return EXIT_SUCCESS;
