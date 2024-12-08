@@ -37,8 +37,8 @@ static const int hash_table_gf = 50; // growth factor percentage(%)
 static const uint64_t fnv_prime = 0x00000100000001B3;
 static const uint64_t fnv_offset_basis = 0xCBF29CE484222325;
 
-int hash_insert(const char *key, int value);
-int hash_search(const char *key, int *res);
+int hash_insert(const char *key, uint64_t value);
+int hash_search(const char *key, uint64_t *res);
 int hash_delete(const char *key);
 
 static hash_ll *hash_ll_find(hash_ll *list, const char *key)
@@ -73,6 +73,19 @@ uint64_t hash_fnv1a(uint8_t *bytes, size_t bytes_len)
         return hashed;
 }
 
+size_t hash_bucket(const char *key)
+{
+        // get hash value
+        uint8_t *bytes = (uint8_t*) key;
+        size_t bytes_len = strlen(key);
+        uint64_t hashed = hash_fnv1a(bytes, bytes_len);
+
+        // use simple modulo
+        size_t bucket = hashed & (hash_table_buckets - 1);
+
+        return bucket;
+}
+
 void hash_init()
 {
         if (hash_table) {
@@ -82,18 +95,13 @@ void hash_init()
         hash_table = (hash_ll**) calloc(hash_table_buckets, sizeof(hash_ll*));
 }
 
-int hash_insert(const char *key, int value)
+int hash_insert(const char *key, uint64_t value)
 {
         if (!key || HASH_LL_KEY_SIZE < (strlen(key) + 1)) {
                 return -1;
         }
 
-        // get hash value
-        uint8_t *bytes = (uint8_t*) key;
-        size_t bytes_len = strlen(key);
-        uint64_t hashed = hash_fnv1a(bytes, bytes_len);
-
-        size_t bucket = hashed & (hash_table_buckets - 1);
+        size_t bucket = hash_bucket(key);
         hash_ll *found = hash_ll_find(hash_table[bucket], key);
 
         if (found) {
@@ -129,8 +137,23 @@ int hash_insert(const char *key, int value)
         return 0;
 }
 
-int hash_search(const char *key, int *res)
+int hash_search(const char *key, uint64_t *res)
 {
+        if (!key) {
+                return -1;
+        }
+
+        size_t bucket = hash_bucket(key);
+        hash_ll *found = hash_ll_find(hash_table[bucket], key);
+
+        if (!found) {
+                return -1;
+        }
+
+        if (res) {
+                *res = found->value;
+        }
+
         return 0;
 }
 
@@ -181,7 +204,12 @@ int main(int argc, char **argv)
                 }
         }
 
-        print_hash_table();
+        uint64_t res = 0;
+        if (hash_search("banana", &res) == 0) {
+                printf("key exists: %llu\n", res);
+        } else {
+                printf("key doesn't exist\n");
+        }
 
         return EXIT_SUCCESS;
 }
