@@ -289,8 +289,14 @@ void handle_insert(const char *line)
         uint64_t value;
 
         if (sscanf(line, "%7s %llu", key, &value) == 2) {
-                if (hash_insert(key, value)) {
+                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                int res = hash_insert(key, value);
+                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+
+                if (res) {
                         fprintf(stderr, "failed to insert\n");
+                } else {
+                        printf("took %0.4f usecs\n", ((t2 - t1) / 1e4));
                 }
         } else {
                 fprintf(stderr, "malformed line: %s\n", line);
@@ -302,8 +308,14 @@ void handle_delete(const char *line)
         char key[HASH_LL_KEY_SIZE];
 
         if (sscanf(line, "%7s", key) == 1) {
-                if (hash_delete(key)) {
+                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                int res = hash_delete(key);
+                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                
+                if (res) {
                         fprintf(stderr, "failed to delete\n");
+                } else {
+                        printf("took %0.4f usecs\n", ((t2 - t1) / 1e4));
                 }
         } else {
                 fprintf(stderr, "malformed line: %s\n", line);
@@ -316,10 +328,15 @@ void handle_search(const char *line)
         uint64_t value = 0;
 
         if (sscanf(line, "%7s", key) == 1) {
-                if (hash_search(key, &value)) {
+                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                int res = hash_search(key, &value);
+                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+
+                if (res) {
                         fprintf(stderr, "\"%s\" does not exist\n", key);
                 } else {
                         printf("\"%s\": %llu\n", key, value);
+                        printf("took %0.4f usecs\n", ((t2 - t1) / 1e4));
                 }
         } else {
                 fprintf(stderr, "malformed line: %s\n", line);
