@@ -379,7 +379,7 @@ int main(int argc, char **argv)
 
         char line[32];
 
-        printf("(%s) ", __FILE_NAME__);
+        printf("(%s) ", __FILE__);
         while (fgets(line, sizeof(line), stdin)) {
                 line[strcspn(line, "\n")] = '\0';
 
@@ -399,7 +399,7 @@ int main(int argc, char **argv)
                         fprintf(stderr, "unkown command: %s\n", line);
                 }
 
-                printf("(%s) ", __FILE_NAME__);
+                printf("(%s) ", __FILE__);
         }
 
         return EXIT_SUCCESS;
