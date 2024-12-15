@@ -283,15 +283,28 @@ void print_hash_table()
         );
 }
 
+inline uint64_t clock_gettime_nsec()
+{
+#if defined(__APPLE__) || defined (__MACH__)
+        return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#elif defined(__linux__) 
+        struct timespec t1;
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        return t1.tv_nsec;
+#else
+        #error "unsupported platform"
+#endif
+}
+
 void handle_insert(const char *line)
 {
         char key[HASH_LL_KEY_SIZE];
         uint64_t value;
 
         if (sscanf(line, "%7s %llu", key, &value) == 2) {
-                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t1 = clock_gettime_nsec();
                 int res = hash_insert(key, value);
-                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t2 = clock_gettime_nsec();
 
                 if (res) {
                         fprintf(stderr, "failed to insert\n");
@@ -308,9 +321,9 @@ void handle_delete(const char *line)
         char key[HASH_LL_KEY_SIZE];
 
         if (sscanf(line, "%7s", key) == 1) {
-                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t1 = clock_gettime_nsec();
                 int res = hash_delete(key);
-                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t2 = clock_gettime_nsec();
                 
                 if (res) {
                         fprintf(stderr, "failed to delete\n");
@@ -328,9 +341,9 @@ void handle_search(const char *line)
         uint64_t value = 0;
 
         if (sscanf(line, "%7s", key) == 1) {
-                uint64_t t1 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t1 = clock_gettime_nsec();
                 int res = hash_search(key, &value);
-                uint64_t t2 = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+                uint64_t t2 = clock_gettime_nsec();
 
                 if (res) {
                         fprintf(stderr, "\"%s\" does not exist\n", key);
