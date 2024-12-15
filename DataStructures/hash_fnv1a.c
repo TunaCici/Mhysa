@@ -283,7 +283,7 @@ void print_hash_table()
         );
 }
 
-inline uint64_t clock_gettime_nsec()
+static inline uint64_t clock_gettime_nsec()
 {
 #if defined(__APPLE__) || defined (__MACH__)
         return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
