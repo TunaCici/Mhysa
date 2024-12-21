@@ -68,21 +68,22 @@ void maintain_lru_list(LRUCache* obj, kv_pair* last_used)
 
         if (obj->head == last_used) {
                 // move the head to next
-                if (last_used->list_next) {
-                obj->head = last_used->list_next;
+                if (obj->head->list_next) {
+                        obj->head = obj->head->list_next;
                 }
                 obj->head->list_prev = NULL;
         } else if (last_used->list_prev) {
                 // take out the 'last_used'
                 last_used->list_prev->list_next = last_used->list_next;
                 if (last_used->list_next) {
-                last_used->list_next->list_prev = last_used->list_prev;
+                        last_used->list_next->list_prev = last_used->list_prev;
                 }
         }
 
         // move 'last_used' to tail
         obj->tail->list_next = last_used;
         last_used->list_prev = obj->tail;
+        
         obj->tail = last_used;
         obj->tail->list_next = NULL;
 }
@@ -114,7 +115,7 @@ void lRUCachePut(LRUCache* obj, int key, int value)
         kv_pair* iter = obj->table[bucket];
         while (iter) {
                 if (iter->key == key) {
-                break;
+                        break;
                 }
 
                 iter = iter->table_next;
@@ -129,26 +130,26 @@ void lRUCachePut(LRUCache* obj, int key, int value)
                 return;
         }
         
+        // if table is full, evict the LRU
         if (obj->table_size == obj->table_capacity) {
-                // if table is full, evict the LRU
                 kv_pair* lru = obj->head;
                 size_t lru_bucket = lru->key % obj->table_capacity;
 
                 // update the list
                 obj->head = obj->head->list_next;
                 if (obj->head) {
-                obj->head->list_prev = NULL;
+                        obj->head->list_prev = NULL;
                 }
 
                 // update the table
                 if (obj->table[lru_bucket] == lru) {
-                obj->table[lru_bucket] = lru->table_next;
+                        obj->table[lru_bucket] = lru->table_next;
                 } else if (lru->table_prev) {
-                lru->table_prev->table_next = lru->table_next;
+                        lru->table_prev->table_next = lru->table_next;
                 }
 
                 if (lru->table_next) {
-                lru->table_next->table_prev = lru->table_prev;
+                        lru->table_next->table_prev = lru->table_prev;
                 }
 
                 obj->table_size--;
@@ -179,7 +180,8 @@ void lRUCachePut(LRUCache* obj, int key, int value)
         maintain_lru_list(obj, last_used);
 }
 
-void lRUCacheFree(LRUCache* obj) {
+void lRUCacheFree(LRUCache* obj)
+{
         // free all pairs
         kv_pair* iter = obj->head;
         while (iter) {
