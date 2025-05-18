@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	City        = "Los Angeles"
+	City        = "Manchester"
 	StockSymbol = "NVDA"
 )
 
@@ -50,7 +50,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "failed to stream GetStock: ", err)
 	}
 
-	// 4. Display info forever
+	// 4. Display info forever (and as fast as possible)
 	for {
 		stck, err := stream.Recv()
 		if err == io.EOF {
