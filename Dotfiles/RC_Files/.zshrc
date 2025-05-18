@@ -28,13 +28,13 @@ fi
 GPG_TTY=$(tty)
 export GPG_TTY
 
-# Alias: ls <-> exa
-alias ls="exa"
-alias ll="exa --long --header --classify"
-alias la="exa --long --header --classify --all"
-alias lt="exa --tree --level=1"
-alias ltt="exa --tree --level=2"
-alias lttt="exa --tree --level=3"
+# Alias: ls <-> eza
+alias ls="eza"
+alias ll="eza --long --header --classify"
+alias la="eza --long --header --classify --all"
+alias lt="eza --tree --level=1"
+alias ltt="eza --tree --level=2"
+alias lttt="eza --tree --level=3"
 
 # Alias: nvim <-> neovim
 if [[ "$OSTYPE" == "darwin"* ]]; then
