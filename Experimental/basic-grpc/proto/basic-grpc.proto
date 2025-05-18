@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package basicgrpc;
+option go_package = "github.com/TunaCici/Mhysa/Experimental/basic-grpc;basicgrpc";
+
+import "google/protobuf/timestamp.proto";
+
+service GeneralInfo {
+        rpc GetWeather(WeatherRequest) returns (WeatherReply) {}
+        rpc GetStock(StockRequest) returns (stream StockReply) {}
+}
+
+message WeatherRequest {
+        string City = 1;
+}
+
+message WeatherReply {
+        string City = 1;
+        string Temperature = 2;
+        string Condition = 3;
+        string Humidity = 4;
+        string WindSpeed = 5;
+        string Precipitation = 6;
+        string Pressure = 7;
+}
+
+message StockRequest {
+        string Symbol = 1;
+}
+
+message StockReply {
+        string Symbol = 1;
+        float Price = 2;
+        google.protobuf.Timestamp Timestamp = 3;
+}
