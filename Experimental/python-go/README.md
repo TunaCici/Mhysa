@@ -2,9 +2,13 @@
 
 My goal is to have a Python script execute Go functions in an efficient & nice way.
 Naturally, they need to talk to each other. There are many ways of achiving this via a
-client-server architecture. However, that is not without it's overhead (runtime & development).
+classical client-server architecture. However, that is not without it's overhead (runtime & development).
 
-Here, I will try to evalaute the following methods of achiving that goal:
+Another way is to execute the Python script within the server application.
+The most ideal and battle-tested method of doing that is via CPython.
+However, my goal is to do it within Go (not C) And sadly there is no Go idiomatic way of doing it.
 
-- Embedded Python in Go via CPython and cgo
+Here, I will try to evalaute those followings. In other words:
+
+- Embedd Python in Go via CPython and cgo
 - gRPC between Go and Python processes
