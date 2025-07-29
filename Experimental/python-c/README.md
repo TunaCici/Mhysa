@@ -16,14 +16,43 @@ It is used to tell the the C/C++ compiler how to build the program
 
 Think include headers and static/dynamic libraries.
 
+## CPython: Objects
+
+See: https://docs.python.org/3/c-api/structures.html
+
 ## CPython: C Bindings
 
-## CPython: Global Interpretter Lock (GIL)
+## CPython: API Stability
+
+See: https://docs.python.org/3/c-api/stable.html#
+
+## CPython: Thread Safety / Global Interpretter Lock (GIL)
+
+See: https://docs.python.org/3/c-api/init.html#thread-state-and-the-global-interpreter-lock
+See: https://tonybaloney.github.io/posts/sub-interpreter-web-workers.html
+
+## CPython: Isolated Configuration
+
+See: https://docs.python.org/3/c-api/init_config.html#init-isolated-conf
+
+## CPython: Memory Management
+
+## CPython: Exception Handling
+
+## CPython: Licensing
+
+See: https://wiki.python.org/moin/PythonSoftwareFoundationLicenseFaq
 
 ## cgo: Memory Management
 
 ## cgo: Directives (#cgo)
 
+## cgo: pkg-config
+
+## cgo: Cross-compilation
+
 ## cgo: Downsides
 
-- No support for function pointers
+* No support for function pointers
+* No support for macro functions
+* No auto-complete support for GoLand (https://youtrack.jetbrains.com/issue/GO-4032/CGO-auto-complete-improvement-Go-references-to-C)
