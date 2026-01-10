@@ -1,9 +1,10 @@
 # Common
-autoload -Uz compinit; compinit
+autoload -Uz compinit
+compinit
 autoload -Uz vcs_info
 
 zstyle ':vcs_info:*' enable git svn
-zstyle ':vcs_info:git*' formats "(%b)"
+zstyle ':vcs_info:git:*' formats $'\uE725 %b'
 
 export CLICOLOR=1
 
@@ -17,22 +18,18 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 fi
 
 precmd() {
-    # As always first run the system so everything is setup correctly.
-    vcs_info
-    # And then just set PS1, RPS1 and whatever you want to. This $PS1
-    # is (as with the other examples above too) just an example of a very
-    # basic single-line prompt. See "man zshmisc" for details on how to
-    # make this less readable. :-)
-    if [[ -z ${vcs_info_msg_0_} ]]; then
-        # nothing from vcs_info
-        PS1="%F{green}%n%f%F{green}@%f%F{green}${MYHOST}%f:%F{magenta}%~%f$ "
-    else
-        # vcs_info found something
-        PS1="%F{green}%n%f%F{green}@%f%F{green}${MYHOST}%f:%F{magenta}%~%f %F{cyan}${vcs_info_msg_0_}%f$ "
-    fi
+  vcs_info
 
-    # Time on the right (light grey)
-    RPROMPT='%F{245}%D{%l:%M:%S %p}%f'
+  if [[ -z ${vcs_info_msg_0_} ]]; then
+    # nothing from vcs_info
+    PS1="%F{green}%n%f%F{green}@%f%F{green}${MYHOST}%f:%F{magenta}%~%f$ "
+  else
+    # vcs_info found something
+    PS1="%F{green}%n%f%F{green}@%f%F{green}${MYHOST}%f:%F{magenta}%~%f %F{cyan}${vcs_info_msg_0_}%f$ "
+  fi
+
+  # Time on the right (light grey)
+  RPROMPT='%F{245}%D{%l:%M:%S %p}%f'
 }
 
 ## Initialization: VSCode
@@ -67,7 +64,6 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
   alias nvim="neovim"
 fi
 
-
 ## Extension: zsh-syntax-highlighting
 if [[ "$OSTYPE" == "darwin"* ]]; then
   source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -77,9 +73,9 @@ fi
 
 ## Extension: zsh-autosuggestions
 if [[ "$OSTYPE" == "darwin"* ]]; then
-	source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
 # Machine-specific configs
